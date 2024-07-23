@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(SOURCES src/main.cpp
     src/DrawLine.cpp
+    src/Triangle.cpp
     src/tgaimage.cpp
     src/model.cpp
     )

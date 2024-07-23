@@ -1,17 +1,19 @@
 /**
  * @file main.cpp
  * @author Grayedsol (grayedsol@gmail.com)
- * @brief Software rasterizer that renders an object file (.obj) to an image file (.tga).
+ * @brief Software rasterizer.
  * @copyright Copyright (c) 2024
  */
 #include <iostream>
 #include <vector>
 #include "tgaimage.hpp"
-#include "DrawLine.hpp"
 #include "model.hpp"
+#include "Triangle.hpp"
 
 const TGAColor White{ 255, 255, 255, 255 };
 const TGAColor Red{ 255, 0, 0, 255 };
+const TGAColor Green{ 0, 255, 0, 255 };
+const TGAColor Blue{ 0, 0, 255, 255 };
 
 void drawModel(const Model* model, TGAImage& image) {
     const int width = image.get_width();
@@ -32,13 +34,28 @@ void drawModel(const Model* model, TGAImage& image) {
 }
 
 int main(int argc, char** argv) {
-    Model* model = argc > 1 ? new Model(argv[1]) : new Model("obj/head.obj");
-    TGAImage image (800, 800, TGAImage::RGB);
+    // Model* model = argc > 1 ? new Model(argv[1]) : new Model("obj/head.obj");
+    // TGAImage image(800, 800, TGAImage::RGB);
      
-    drawModel(model, image);
-    image.flip_vertically();
-    delete model;
+    // drawModel(model, image);
+    // image.flip_vertically();
+    // delete model;
 
+    TGAImage image(200, 200, TGAImage::RGB);
+
+    Vec2i t0[3] = {Vec2i(10, 70),   Vec2i(50, 160),  Vec2i(70, 80)}; 
+    Vec2i t1[3] = {Vec2i(180, 50),  Vec2i(150, 1),   Vec2i(70, 180)}; 
+    Vec2i t2[3] = {Vec2i(180, 150), Vec2i(120, 160), Vec2i(130, 180)}; 
+
+    fillTriangleBarycentric(t0, image, Red);
+    fillTriangleBarycentric(t1, image, Blue);
+    fillTriangleBarycentric(t2, image, Green);
+
+    drawTriangle(t0, image, White); 
+    drawTriangle(t1, image, White); 
+    drawTriangle(t2, image, White);
+
+    image.flip_vertically();
     image.write_tga_file("output.tga");
 
     return 0;

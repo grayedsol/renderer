@@ -6,6 +6,7 @@
  */
 #pragma once
 #include "tgaimage.hpp"
+#include "geometry.hpp"
 
 /**
  * @brief Bresenham line drawing algorithim.
@@ -18,3 +19,7 @@
  * @param color Color the line will be drawn in.
  */
 void drawLine(int x0, int y0, int x1, int y1, TGAImage& image, const TGAColor& color);
+
+inline void drawLine(Vec2i p1, Vec2i p2, TGAImage& image, const TGAColor& color) {
+    drawLine(p1.x, p1.y, p2.x, p2.y, image, color);
+}
