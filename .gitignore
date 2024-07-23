@@ -1,0 +1,8 @@
+# Build folder
+[Bb]uild/
+
+# Visual Studio Code folder
+.vscode/
+
+# Other objects folder
+otherObj/

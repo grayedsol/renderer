@@ -1,0 +1,2 @@
+#define renderer_VERSION_MAJOR @renderer_VERSION_MAJOR@
+#define renderer_VERSION_MINOR @renderer_VERSION_MINOR@
