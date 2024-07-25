@@ -6,7 +6,7 @@
  */
 #pragma once
 #include "tgaimage.hpp"
-#include "geometry.hpp"
+#include "GRY_Vec.hpp"
 
 /**
  * @brief Bresenham line drawing algorithim.

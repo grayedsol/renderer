@@ -46,8 +46,8 @@ void drawModel(const Model* model, TGAImage& image) {
             screenCoords[j].x = (worldCoords[j].x + 1.f) * width / 2.f;
             screenCoords[j].y = (worldCoords[j].y + 1.f) * height / 2.f;
         }
-        Vec3f normal = ((worldCoords[2] - worldCoords[0]) ^ (worldCoords[1] - worldCoords[0])).normalize();
-        float intensity = normal * lightDirection;
+        Vec3f normal = GRY_VecNormalize(GRY_VecCross(worldCoords[2] - worldCoords[0], worldCoords[1] - worldCoords[0]));
+        float intensity = GRY_VecDot(normal, lightDirection);
         if (intensity <= 0) { continue; }
         TGAColor color{
             (unsigned char) (intensity * 255),

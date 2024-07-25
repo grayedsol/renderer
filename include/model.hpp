@@ -6,7 +6,7 @@
 #pragma once
 
 #include <vector>
-#include "geometry.hpp"
+#include "GRY_Vec.hpp"
 
 class Model {
 private:
