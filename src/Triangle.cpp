@@ -55,11 +55,16 @@ void fillTriangleGradient(const Vec2i tri[3], TGAImage &image) {
     for (int x = bounds[0].x; x <= bounds[1].x; x++) {
         for (int y = bounds[0].y; y <= bounds[1].y; y++) {
             const Vec2i pt{x,y};
-            int r = (edge(t[1], t[2], pt) / twoArea) * 255;
-            int g = (edge(t[0], t[1], pt) / twoArea) * 255;
-            int b = (edge(t[2], t[0], pt) / twoArea) * 255;
+            int r = edge(t[1], t[2], pt);
+            int g = edge(t[0], t[1], pt);
+            int b = edge(t[2], t[0], pt);
             if ((r | g | b) > 0) {
-                image.set(x, y, TGAColor{ (unsigned char)r, (unsigned char)g, (unsigned char)b, 255});
+                image.set(x, y, TGAColor{
+                    (unsigned char)((r/twoArea) * 255),
+                    (unsigned char)((g/twoArea) * 255),
+                    (unsigned char)((b/twoArea) * 255),
+                    255
+                });
             }
         }
     }
