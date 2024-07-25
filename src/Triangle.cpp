@@ -44,3 +44,23 @@ void fillTriangleBarycentric(const Vec2i tri[3], TGAImage &image, const TGAColor
         }
     }
 }
+
+void fillTriangleGradient(const Vec2i tri[3], TGAImage &image) {
+    Vec2i bounds[2];
+    Vec2i t[3] = {tri[0], tri[1], tri[2]};
+    float twoArea = edge(t[0], t[1], t[2]);
+    if (twoArea < 0) { std::swap(t[1], t[2]); twoArea *= -1.f; }
+    boundingBoxTriangle(t, bounds);
+
+    for (int x = bounds[0].x; x <= bounds[1].x; x++) {
+        for (int y = bounds[0].y; y <= bounds[1].y; y++) {
+            const Vec2i pt{x,y};
+            int r = (edge(t[1], t[2], pt) / twoArea) * 255;
+            int g = (edge(t[0], t[1], pt) / twoArea) * 255;
+            int b = (edge(t[2], t[0], pt) / twoArea) * 255;
+            if ((r | g | b) > 0) {
+                image.set(x, y, TGAColor{ (unsigned char)r, (unsigned char)g, (unsigned char)b, 255});
+            }
+        }
+    }
+}

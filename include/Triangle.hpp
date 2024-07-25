@@ -10,3 +10,5 @@ void fillTriangle(const Vec2i tri[3], TGAImage& image, const TGAColor& color);
 void fillTriangleBresenham(const Vec2i tri[3], TGAImage& image, const TGAColor& color);
 
 void fillTriangleBarycentric(const Vec2i tri[3], TGAImage& image, const TGAColor& color);
+
+void fillTriangleGradient(const Vec2i tri[3], TGAImage& image);
