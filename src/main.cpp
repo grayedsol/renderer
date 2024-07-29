@@ -59,11 +59,41 @@ void drawModel(const Model* model, TGAImage& image) {
     }
 }
 
+void drawModelZBuffer(const Model* model, TGAImage& image) {
+    const Vec3f lightDirection = Vec3f{0, 0, -1 };
+    const int width = image.get_width();
+    const int height = image.get_height();
+    float* zBuffer = new float[width * height];
+    for (int i = 0; i < width * height; i++) { zBuffer[i] = -10.f; }
+    for (int i = 0; i < model->nfaces(); i++) {
+        const std::vector<int> face = model->face(i);
+        Vec3f worldCoords[3];
+        Vec3i screenCoords[3];
+        for (int j = 0; j < 3; j++) {
+            worldCoords[j] = model->vert(face[j]);
+            screenCoords[j].x = (worldCoords[j].x + 1.f) * width / 2.f;
+            screenCoords[j].y = (worldCoords[j].y + 1.f) * height / 2.f;
+            screenCoords[j].z = worldCoords[j].z + 1.f;
+        }
+        Vec3f normal = GRY_VecNormalize(GRY_VecCross(worldCoords[2] - worldCoords[0], worldCoords[1] - worldCoords[0]));
+        float intensity = GRY_VecDot(normal, lightDirection);
+        if (intensity <= 0) { continue; }
+        TGAColor color{
+            (unsigned char) (intensity * 255),
+            (unsigned char) (intensity * 255),
+            (unsigned char) (intensity * 255),
+            255
+        };
+        fillTriangleBarycentric(screenCoords, image, color, zBuffer);
+    }
+    delete[] zBuffer;
+}
+
 int main(int argc, char** argv) {
     Model* model = argc > 1 ? new Model(argv[1]) : new Model("obj/head.obj");
     TGAImage image(800, 800, TGAImage::RGB);
      
-    drawModel(model, image);
+    drawModelZBuffer(model, image);
     delete model;
 
     // TGAImage image(200, 200, TGAImage::RGB);
