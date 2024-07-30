@@ -22,4 +22,7 @@ target_include_directories(${PROJECT_NAME}
 
 configure_file(rendererconfig.h.in rendererconfig.h)
 
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(renderer PRIVATE glm::glm)
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
