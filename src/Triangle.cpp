@@ -67,12 +67,12 @@ void fillTriangleBarycentric(const Vec3i tri[3], TGAImage& image, const TGAColor
     int width = image.get_width();
     for (int x = bounds[0].x; x <= bounds[1].x; x++) {
         for (int y = bounds[0].y; y <= bounds[1].y; y++) {
-            float r = edge(t2d[1], t2d[2], Vec2i{x,y}) / twoArea;
-            float g = edge(t2d[0], t2d[1], Vec2i{x,y}) / twoArea;
-            float b = edge(t2d[2], t2d[0], Vec2i{x,y}) / twoArea;
-            if (r >= 0 && g >= 0 && b >= 0) {
-                float z = (r*tri[0].z) + (b*tri[1].z) + (g*tri[2].z);
-                if (zBuffer[x+(y*width)] < z - 0.001f) {
+            int r = edge(t2d[1], t2d[2], Vec2i{x,y});
+            int g = edge(t2d[0], t2d[1], Vec2i{x,y});
+            int b = edge(t2d[2], t2d[0], Vec2i{x,y});
+            if ((r | g | b) >= 0) {
+                float z = ((r*tri[0].z) + (b*tri[1].z) + (g*tri[2].z)) / twoArea;
+                if (zBuffer[x+(y*width)] < z) {
                     zBuffer[x+(y*width)] = z;
                     image.set(x, y, color);
                 }

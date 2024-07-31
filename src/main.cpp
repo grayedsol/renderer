@@ -43,8 +43,8 @@ void drawModel(const Model* model, TGAImage& image) {
         Vec2i screenCoords[3];
         for (int j = 0; j < 3; j++) {
             worldCoords[j] = model->vert(face[j]);
-            screenCoords[j].x = (worldCoords[j].x + 1.f) * width / 2.f;
-            screenCoords[j].y = (worldCoords[j].y + 1.f) * height / 2.f;
+            screenCoords[j].x = (worldCoords[j].x + 1.f) * (width / 2.f);
+            screenCoords[j].y = (worldCoords[j].y + 1.f) * (height / 2.f);
         }
         Vec3f normal = GRY_VecNormalize(GRY_VecCross(worldCoords[2] - worldCoords[0], worldCoords[1] - worldCoords[0]));
         float intensity = GRY_VecDot(normal, lightDirection);
@@ -64,15 +64,15 @@ void drawModelZBuffer(const Model* model, TGAImage& image) {
     const int width = image.get_width();
     const int height = image.get_height();
     float* zBuffer = new float[width * height];
-    for (int i = 0; i < width * height; i++) { zBuffer[i] = -10.f; }
+    for (int i = 0; i < width * height; i++) { zBuffer[i] = -10000.f; }
     for (int i = 0; i < model->nfaces(); i++) {
         const std::vector<int> face = model->face(i);
         Vec3f worldCoords[3];
         Vec3i screenCoords[3];
         for (int j = 0; j < 3; j++) {
             worldCoords[j] = model->vert(face[j]);
-            screenCoords[j].x = (worldCoords[j].x + 1.f) * width / 2.f;
-            screenCoords[j].y = (worldCoords[j].y + 1.f) * height / 2.f;
+            screenCoords[j].x = (worldCoords[j].x + 1.f) * (width / 2.f);
+            screenCoords[j].y = (worldCoords[j].y + 0.f) * (height / 2.f);
             screenCoords[j].z = worldCoords[j].z + 1.f;
         }
         Vec3f normal = GRY_VecNormalize(GRY_VecCross(worldCoords[2] - worldCoords[0], worldCoords[1] - worldCoords[0]));
