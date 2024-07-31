@@ -13,6 +13,6 @@ void fillTriangleBresenham(const Vec2i tri[3], TGAImage& image, const TGAColor& 
 
 void fillTriangleBarycentric(const Vec2i tri[3], TGAImage& image, const TGAColor& color);
 
-void fillTriangleBarycentric(const Vec3i tri[3], TGAImage& image, const TGAColor& color, float* zBuffer);
+void fillTriangleBarycentric(const Vec3f tri[3], TGAImage& image, const TGAColor& color, float* zBuffer);
 
 void fillTriangleGradient(const Vec2i tri[3], TGAImage& image);

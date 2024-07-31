@@ -34,6 +34,10 @@ static int edge(const Vec2i a, const Vec2i b, const Vec2i c) {
     return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
 
+static float edge(const Vec2f a, const Vec2f b, const Vec2f c) {
+    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+
 void fillTriangleBarycentric(const Vec2i tri[3], TGAImage &image, const TGAColor &color) {
     Vec2i bounds[2];
     Vec2i t[3] = {tri[0], tri[1], tri[2]};
@@ -50,10 +54,10 @@ void fillTriangleBarycentric(const Vec2i tri[3], TGAImage &image, const TGAColor
     }
 }
 
-void fillTriangleBarycentric(const Vec3i tri[3], TGAImage& image, const TGAColor& color, float* zBuffer) {
+void fillTriangleBarycentric(const Vec3f tri[3], TGAImage& image, const TGAColor& color, float* zBuffer) {
     Vec2i bounds[2];
     Vec2i t2d[3];
-    for (int i = 0; i < 3; i++) { t2d[i] = Vec2i{tri[i].x, tri[i].y}; }
+    for (int i = 0; i < 3; i++) { t2d[i] = Vec2i{(int)tri[i].x, (int)tri[i].y}; }
     float twoArea = edge(t2d[0], t2d[1], t2d[2]);
     if (twoArea < 0) {
         std::swap(t2d[1], t2d[2]);
@@ -71,7 +75,7 @@ void fillTriangleBarycentric(const Vec3i tri[3], TGAImage& image, const TGAColor
             int g = edge(t2d[0], t2d[1], Vec2i{x,y});
             int b = edge(t2d[2], t2d[0], Vec2i{x,y});
             if ((r | g | b) >= 0) {
-                float z = ((r*tri[0].z) + (b*tri[1].z) + (g*tri[2].z)) / twoArea;
+                float z = twoArea / ((r/tri[0].z) + (b/tri[1].z) + (g/tri[2].z));
                 if (zBuffer[x+(y*width)] < z) {
                     zBuffer[x+(y*width)] = z;
                     image.set(x, y, color);
