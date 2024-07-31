@@ -9,6 +9,7 @@
 #include "tgaimage.hpp"
 #include "model.hpp"
 #include "Triangle.hpp"
+#include "glm/mat4x4.hpp"
 
 const TGAColor White{ 255, 255, 255, 255 };
 const TGAColor Red{ 255, 0, 0, 255 };
@@ -72,7 +73,7 @@ void drawModelZBuffer(const Model* model, TGAImage& image) {
         for (int j = 0; j < 3; j++) {
             worldCoords[j] = model->vert(face[j]);
             screenCoords[j].x = (worldCoords[j].x + 1.f) * (width / 2.f);
-            screenCoords[j].y = (worldCoords[j].y + 0.f) * (height / 2.f);
+            screenCoords[j].y = (worldCoords[j].y + 1.f) * (height / 2.f);
             screenCoords[j].z = worldCoords[j].z + 1.f;
         }
         Vec3f normal = GRY_VecNormalize(GRY_VecCross(worldCoords[2] - worldCoords[0], worldCoords[1] - worldCoords[0]));
