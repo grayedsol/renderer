@@ -3,7 +3,7 @@
  * @author Grayedsol (grayedsol@gmail.com)
  * @copyright Copyright (c) 2024
  */
-#include "DrawLine.hpp"
+#include "Line.hpp"
 #include <utility>
 
 void drawLine(int x0, int y0, int x1, int y1, TGAImage& image, const TGAColor& color) {

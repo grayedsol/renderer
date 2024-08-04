@@ -1,18 +1,25 @@
 #pragma once
-#include "DrawLine.hpp"
+#include "tgaimage.hpp"
+#include "glm/ext/vector_float3.hpp"
+#include "glm/ext/vector_float2.hpp"
+#include "glm/ext/vector_int2.hpp"
 
-void boundingBoxTriangle(const Vec2i tri[3], Vec2i out[2]);
+void clamp(const glm::ivec2 min, const glm::ivec2 max, glm::ivec2& out);
 
-void clamp(Vec2i& out, const Vec2i min, const Vec2i max);
+namespace Triangle {
+    using glm::vec2;
+    using glm::ivec2;
+    using glm::vec3;
 
-void drawTriangle(const Vec2i tri[3], TGAImage& image, const TGAColor& color);
+    void boundingBox(const ivec2 tri[3], ivec2 out[2]);
 
-void fillTriangle(const Vec2i tri[3], TGAImage& image, const TGAColor& color);
+    void boundingBox(const vec2 tri[3], ivec2 out[2]);
 
-void fillTriangleBresenham(const Vec2i tri[3], TGAImage& image, const TGAColor& color);
+    void draw(const ivec2 tri[3], TGAImage& image, const TGAColor& color);
 
-void fillTriangleBarycentric(const Vec2i tri[3], TGAImage& image, const TGAColor& color);
+    void fill2d(const ivec2 tri[3], TGAImage& image, const TGAColor& color);
 
-void fillTriangleBarycentric(const Vec3f tri[3], TGAImage& image, const TGAColor& color, float* zBuffer);
+    void fill(const vec3 tri[3], TGAImage& image, const TGAColor& color, float* zBuffer);
 
-void fillTriangleGradient(const Vec2i tri[3], TGAImage& image);
+    void fillGradient(const ivec2 tri[3], TGAImage& image);
+}
