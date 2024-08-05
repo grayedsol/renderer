@@ -54,12 +54,20 @@ struct TGAColor {
 		}
 	}
 
-	TGAColor & operator =(const TGAColor &c) {
+	TGAColor& operator=(const TGAColor &c) {
 		if (this != &c) {
 			bytespp = c.bytespp;
 			val = c.val;
 		}
 		return *this;
+	}
+
+	TGAColor operator*(float scalar) const {
+		TGAColor retColor;
+		for (int i = 0; i < bytespp; i++) {
+			retColor.raw[i] = (unsigned char) (scalar * raw[i]);
+		}
+		return retColor;
 	}
 };
 
