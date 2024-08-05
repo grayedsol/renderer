@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
     Model* model = argc > 1 ? new Model(argv[1]) : new Model("obj/head.obj");
     TGAImage* texture = new TGAImage;
     const char* texturePath = argc > 2 ? argv[2] : "obj/head.tga";
-    assert(texture->read_tga_file(texturePath) && "Texture must be a valid path.");
+    assert(texture->read_tga_file(texturePath) && "Error reading .tga file.");
 
     Object object(model, texture);
     object.rotateY(glm::radians(180.f));
