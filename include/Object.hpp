@@ -6,17 +6,27 @@
 
 struct Object {
     Model* model = nullptr;
+    TGAImage* texture = nullptr;
     glm::mat4 modelMatrix = glm::identity<glm::mat4>();
 
     Object(Model* model) : model(model) {
         assert(model && "Model must not be nullptr.");
     }
 
-    ~Object() { delete model; }
+    Object(Model* model, TGAImage* texture) : model(model), texture(texture) {
+        assert(model && "Model must not be nullptr.");
+        assert(texture && "Texture must not be nullptr.");
+    }
+
+    ~Object() {
+        delete model;
+        delete texture;
+    }
 
     friend void swap(Object& obj1, Object& obj2) {
         using std::swap;
         swap(obj1.model, obj2.model);
+        swap(obj1.texture, obj2.texture);
         swap(obj1.modelMatrix, obj2.modelMatrix);
     }
 

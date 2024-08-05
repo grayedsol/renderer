@@ -8,11 +8,15 @@
 
 int main(int argc, char** argv) {
     TGAImage image(800, 800, TGAImage::RGB);
+    Model* model = argc > 1 ? new Model(argv[1]) : new Model("obj/head.obj");
+    TGAImage* texture = new TGAImage;
+    const char* texturePath = argc > 2 ? argv[2] : "obj/head.tga";
+    assert(texture->read_tga_file(texturePath) && "Texture must be a valid path.");
 
-    Object object(new Model(argc > 1 ? argv[1] : "obj/head.obj"));
+    Object object(model, texture);
     object.rotateY(glm::radians(180.f));
     object.rotateX(glm::radians(0.f));
-    object.move(glm::vec3(0.f, 0.f, 0.f));
+    object.move(glm::vec3(0.f, -1.f, 0.f));
 
     Scene scene;
     scene.addObject(std::move(object));

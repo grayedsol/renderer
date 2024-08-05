@@ -23,13 +23,21 @@ Model::Model(const char *filename) : verts_(), faces_() {
             glm::vec3 v;
             for (int i=0;i<3;i++) iss >> v[i];
             verts_.push_back(v);
+        } else if (!line.compare(0, 2, "vt")) {
+            iss >> trash >> trash;
+            glm::vec3 vt;
+            for (int i=0;i<3;i++) {
+                iss >> vt[i];
+            }
+            textures_.push_back(vt);
         } else if (!line.compare(0, 2, "f ")) {
-            std::vector<int> f;
-            int itrash, idx;
+            std::vector<glm::vec3> f;
+            int itrash;
+            glm::vec3 vec;
             iss >> trash;
-            while (iss >> idx >> trash >> itrash >> trash >> itrash) {
-                idx--; // in wavefront obj all indices start at 1, not zero
-                f.push_back(idx);
+            while (iss >> vec[0] >> trash >> vec[1] >> trash >> vec[2]) {
+                for (int i=0;i<3;i++) { vec[i]--; } // in wavefront obj all indices start at 1, not zero
+                f.push_back(vec);
             }
             faces_.push_back(f);
         }
@@ -45,7 +53,7 @@ int Model::nfaces() const {
     return (int)faces_.size();
 }
 
-std::vector<int> Model::face(int idx) const {
+std::vector<glm::vec3> Model::face(int idx) const {
     return faces_[idx];
 }
 
@@ -53,3 +61,6 @@ glm::vec3 Model::vert(int i) const {
     return verts_[i];
 }
 
+glm::vec3 Model::texture(int i) const {
+	return textures_[i];
+}

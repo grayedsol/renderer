@@ -21,5 +21,7 @@ namespace Triangle {
 
     void fill(const vec3 tri[3], TGAImage& image, const TGAColor& color, float* zBuffer);
 
+    void fillTexture(const vec3 tri[3], const vec3 tex[3], TGAImage& image, const TGAImage* texture, float intensity, float* zBuffer);
+
     void fillGradient(const ivec2 tri[3], TGAImage& image);
 }
