@@ -8,6 +8,7 @@ Model::Model(const char* filename) {
     const unsigned int lineSize = 512;
     char line[lineSize];
     while (fgets(line, lineSize, modelFile)) {
+        if (line[0] == '#') { continue; }
         if (!strncmp(line, "v ", 2)) {
             glm::vec3 v;
             int result = sscanf(line, "v %f %f %f", &v[0], &v[1], &v[2]);
