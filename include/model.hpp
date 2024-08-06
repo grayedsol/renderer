@@ -1,29 +1,26 @@
-/**
- * @file model.hpp
- * @author ssloy
- * @brief Model class from https://github.com/ssloy/tinyrenderer
- */
 #pragma once
-
 #include <vector>
 #include "glm/vec3.hpp"
 
-enum {
-	VERTEX = 0,
-	TEXTURE = 1,
-	NORMAL = 2
-};
-
 class Model {
 private:
-	std::vector<glm::vec3> verts_;
-	std::vector<glm::vec3> textures_;
-	std::vector<std::vector<glm::vec3> > faces_;
+	enum {
+		VERTEX = 0,
+		TEXTURE = 1,
+		NORMAL = 2
+	};
+
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> textureUVs;
+	std::vector<std::vector<glm::ivec3>> faces;
 public:
-	Model(const char *filename);
-	int nverts() const;
-	int nfaces() const;
-	glm::vec3 vert(int i) const;
-	glm::vec3 texture(int i) const;
-	std::vector<glm::vec3> face(int idx) const;
+	Model(const char* filename);
+	size_t numVertices() const { return vertices.size(); }
+	size_t numFaces() const { return faces.size(); }
+	glm::vec3 getVertex(unsigned int i) const { return vertices.at(i); }
+	glm::vec3 getVertex(glm::ivec3 vec) const { return vertices.at(vec[VERTEX]); }
+	glm::vec3 getTextureUV(unsigned int i) const { return textureUVs.at(i); }
+	glm::vec3 getTextureUV(glm::ivec3 vec) const { return textureUVs.at(vec[TEXTURE]); }
+	std::vector<glm::ivec3> getFace(int i) const { return faces.at(i); }
+	const std::vector<std::vector<glm::ivec3>>& getFaces() const { return faces; }
 };

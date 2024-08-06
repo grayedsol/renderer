@@ -10,12 +10,10 @@ const TGAColor Blue{ 0, 0, 255, 255 };
 void drawModelWire(const Model* model, TGAImage& image) {
     const int width = image.get_width();
     const int height = image.get_height();
-    for (int i = 0; i < model->nfaces(); i++) {
-        const std::vector<glm::vec3> face = model->face(i);
-
-        for (int j = 0; j < 3; j++) {
-            glm::vec3 v0 = model->vert(face[j][VERTEX]);
-            glm::vec3 v1 = model->vert(face[(j+1)%3][VERTEX]);
+    for (auto& face : model->getFaces()) {
+        for (int i = 0; i < 3; i++) {
+            glm::vec3 v0 = model->getVertex(face[i]);
+            glm::vec3 v1 = model->getVertex(face[(i+1)%3]);
             int x0 = (v0.x+1.f)*width/2.f;
             int y0 = (v0.y+1.f)*height/2.f;
             int x1 = (v1.x+1.f)*width/2.f;
@@ -36,24 +34,24 @@ static void renderObject(const Object &object, const Camera &camera, TGAImage &i
 
     const glm::mat4 modelViewMatrix = camera.viewMatrix * object.modelMatrix;
 
-    for (int i = 0; i < object.model->nfaces(); i++) {
+    for (auto& face : object.model->getFaces()) {
         glm::vec3 vtx[3];
         glm::vec3 tex[3];
         glm::vec3 screenCoords[3];
 
         bool renderTriangle = true;
-        for (int j = 0; j < 3 && renderTriangle; j++) {
-            vtx[j] = object.model->vert(object.model->face(i)[j][VERTEX]);
-            tex[j] = object.model->texture(object.model->face(i)[j][TEXTURE]);
+        for (int i = 0; i < 3 && renderTriangle; i++) {
+            vtx[i] = object.model->getVertex(face[i]);
+            tex[i] = object.model->getTextureUV(face[i]);
 
-            glm::vec4 vClip = projectionMatrix * modelViewMatrix * glm::vec4(vtx[j], 1.f);
+            glm::vec4 vClip = projectionMatrix * modelViewMatrix * glm::vec4(vtx[i], 1.f);
             
             glm::vec3 vNDC = { vClip.x / vClip.w, vClip.y / vClip.w, vClip.z / vClip.w };
 
             renderTriangle = vNDC.z >= 0.f && vNDC.z <= 1.f;
-            if (!renderTriangle) {break;}
+            if (!renderTriangle) { break; }
             
-            screenCoords[j] = {
+            screenCoords[i] = {
                 (vNDC.x * halfWidth) + halfWidth,
                 (vNDC.y * halfHeight) + halfHeight,
                 (vNDC.z * (camera.far - camera.near) * 0.5f) + ((camera.far + camera.near) * 0.5f)

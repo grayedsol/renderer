@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
     TGAImage image(800, 800, TGAImage::RGB);
     Model* model = argc > 1 ? new Model(argv[1]) : new Model("obj/head.obj");
     TGAImage* texture = new TGAImage;
-    const char* texturePath = argc > 2 ? argv[2] : "obj/head.tga";
+    const char* texturePath = argc > 2 ? argv[2] : "textures/head.tga";
     assert(texture->read_tga_file(texturePath) && "Error reading .tga file.");
 
     Object object(model, texture);

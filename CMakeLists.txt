@@ -9,7 +9,7 @@ set(SOURCES src/main.cpp
     src/Line.cpp
     src/Triangle.cpp
     src/tgaimage.cpp
-    src/model.cpp
+    src/Model.cpp
     src/Render.cpp
     )
 

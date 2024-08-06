@@ -1,6 +1,6 @@
 #pragma once
 #include <assert.h>
-#include "model.hpp"
+#include "Model.hpp"
 #include "glm/mat4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
 
