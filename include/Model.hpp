@@ -1,6 +1,7 @@
 #pragma once
-#include <vector>
-#include "glm/vec3.hpp"
+#include "ModelObject.hpp"
+#include "glm/mat4x4.hpp"
+#include "glm/ext/matrix_transform.hpp"
 
 class Model {
 private:
@@ -10,22 +11,43 @@ private:
 		NORMAL = 2
 	};
 
-	std::vector<glm::vec3> vertices;
-	std::vector<glm::vec3> textureUVs;
-	std::vector<glm::vec3> normals;
-	std::vector<std::vector<glm::ivec3>> faces;
+	int vertexIndex = 0;
+	int textureUVIndex = 0;
+	int normalIndex = 0;
+
+	std::vector<std::unique_ptr<MatTexture>> textures;
+	std::vector<Material> materials;
+	std::vector<ModelObject> objects;
+
+	glm::mat4 modelMatrix = glm::identity<glm::mat4>();
+
+	void loadObject(char line[], int lineSize, FILE* objFile);
+
+	void loadMaterial(char line[], int lineSize, FILE* materialFile);
+	void loadMaterials(const char* materialPath);
 public:
 	Model(const char* filename);
 
-	glm::vec3 getVertex(unsigned int i) const { return vertices.at(i); }
-	glm::vec3 getVertex(glm::ivec3 vec) const { return vertices.at(vec[VERTEX]); }
+	const std::vector<ModelObject>& getModelObjects() const { return objects; }
 
-	glm::vec3 getTextureUV(unsigned int i) const { return textureUVs.at(i); }
-	glm::vec3 getTextureUV(glm::ivec3 vec) const { return textureUVs.at(vec[TEXTURE]); }
+	MatTexture* getTexture(const char* path);
+	Material* getMaterial(const char* materialName);
 
-	glm::vec3 getNormal(unsigned int i) const { return normals.at(i); }
-	glm::vec3 getNormal(glm::ivec3 vec) const { return normals.at(vec[NORMAL]); }
+	glm::mat4 getModelMatrix() const { return modelMatrix; }
 
-	std::vector<glm::ivec3> getFace(int i) const { return faces.at(i); }
-	const std::vector<std::vector<glm::ivec3>>& getFaces() const { return faces; }
+    void move(glm::vec3 translationVec) {
+        modelMatrix = glm::translate(modelMatrix, translationVec);
+    }
+
+    void rotate(float angle, glm::vec3 rotationVec) {
+        modelMatrix = glm::rotate(modelMatrix, angle, rotationVec);
+    }
+
+    void rotateX(float angle) { rotate(angle, glm::vec3{1.f, 0.f, 0.f}); }
+    void rotateY(float angle) { rotate(angle, glm::vec3{0.f, 1.f, 0.f}); }
+    void rotateZ(float angle) { rotate(angle, glm::vec3{0.f, 0.f, 1.f}); }
+
+    void scale(glm::vec3 scaleVec) {
+        modelMatrix = glm::scale(modelMatrix, scaleVec);
+    }
 };

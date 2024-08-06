@@ -16,6 +16,8 @@ set(SOURCES src/main.cpp
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 file(COPY obj DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY material DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY textures DESTINATION ${CMAKE_BINARY_DIR})
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE include
