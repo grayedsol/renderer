@@ -19,6 +19,11 @@ Model::Model(const char* filename) {
             if (result < 3) { vt[2] = 0.f; }
             textureUVs.push_back(vt);
         }
+        else if (!strncmp(line, "vn", 2)) {
+            glm::vec3 vn;
+            int result = sscanf(line, "vn %f %f %f", &vn[0], &vn[1], &vn[2]);
+            normals.push_back(vn);
+        }
         else if (!strncmp(line, "f ", 2)) {
             std::vector<glm::ivec3> f(3);
             sscanf(line, "f %d/%d/%d %d/%d/%d %d/%d/%d",
@@ -33,5 +38,7 @@ Model::Model(const char* filename) {
             faces.push_back(f);
         }
     }
-    printf("Vertices: %d Faces: %d\n", vertices.size(), faces.size());
+    printf("Model \"%s\":\n", filename);
+    printf("Vertices: %d | Faces: %d | ", vertices.size(), faces.size());
+    printf("Texture vertices: %d | Vertex normals: %d\n", textureUVs.size(), normals.size());
 }

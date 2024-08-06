@@ -12,6 +12,7 @@ private:
 
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> textureUVs;
+	std::vector<glm::vec3> normals;
 	std::vector<std::vector<glm::ivec3>> faces;
 public:
 	Model(const char* filename);
@@ -21,6 +22,9 @@ public:
 
 	glm::vec3 getTextureUV(unsigned int i) const { return textureUVs.at(i); }
 	glm::vec3 getTextureUV(glm::ivec3 vec) const { return textureUVs.at(vec[TEXTURE]); }
+
+	glm::vec3 getNormal(unsigned int i) const { return normals.at(i); }
+	glm::vec3 getNormal(glm::ivec3 vec) const { return normals.at(vec[NORMAL]); }
 
 	std::vector<glm::ivec3> getFace(int i) const { return faces.at(i); }
 	const std::vector<std::vector<glm::ivec3>>& getFaces() const { return faces; }
