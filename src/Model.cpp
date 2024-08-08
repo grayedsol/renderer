@@ -40,6 +40,14 @@ void Model::loadObject(char line[], int lineSize, FILE *objFile) {
                 &f[1][0], &f[1][1], &f[1][2],
                 &f[2][0], &f[2][1], &f[2][2]
             );
+            if (scanResult < 9) {
+                scanResult = sscanf(line, "f %d//%d %d//%d %d//%d",
+                    &f[0][0], &f[0][2],
+                    &f[1][0], &f[1][2],
+                    &f[2][0], &f[2][2]
+                );
+                for (int i = 0; i < 3; i++) { f[i][1] = 1; }
+            }
             /* Adjust for obj file indicies starting at 1. */
             for (auto& vec : f) {
                 vec[VERTEX] -= vertexIndex + 1;
