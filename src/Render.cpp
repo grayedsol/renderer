@@ -27,7 +27,7 @@ void drawModelWire(const Model* model, TGAImage& image) {
 }
 
 static void renderModelObject(const ModelObject &object, const Camera &camera, TGAImage &image, const glm::mat4x4 modelMatrix, const glm::mat4 projectionMatrix, const glm::vec3 lightDirection, float* zBuffer) {
-    const glm::vec3 cullDirection = camera.viewMatrix * glm::vec4{ 0, 0, 1, 0};
+    const glm::vec3 cullDirection = glm::vec4{ 0, 0, 1, 0};
 
     const float halfWidth = image.get_width() * 0.5f;
     const float halfHeight = image.get_height() * 0.5f;
@@ -67,7 +67,7 @@ static void renderModelObject(const ModelObject &object, const Camera &camera, T
         if (glm::dot(norm, cullDirection) <= 0) { continue; } 
 
         float intensity = glm::dot(norm, lightDirection);
-        if (intensity <= 0) { intensity = 0; }
+        if (intensity <= 0) { intensity = .1f; }
 
         if (texture) {
             Triangle::fillTexture(screenCoords, tex, image, texture, intensity, zBuffer);
