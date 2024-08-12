@@ -40,12 +40,14 @@ static void renderModelObject(const ModelObject &object, const Camera &camera, T
     for (auto& face : object.getFaces()) {
         glm::vec3 vtx[3];
         glm::vec3 tex[3];
+        glm::vec3 norms[3];
         glm::vec3 screenCoords[3];
 
         bool renderTriangle = true;
         for (int i = 0; i < 3 && renderTriangle; i++) {
             vtx[i] = object.getVertex(face[i]);
             tex[i] = object.getTextureUV(face[i]);
+            norms[i] = modelViewMatrix * glm::vec4(object.getComputedNormal(face[i]), 0.f);
 
             glm::vec4 vClip = projectionMatrix * modelViewMatrix * glm::vec4(vtx[i], 1.f);
             
@@ -62,15 +64,15 @@ static void renderModelObject(const ModelObject &object, const Camera &camera, T
         }
         if (!renderTriangle) { continue; }
         
-        glm::vec3 norm = glm::normalize(glm::cross(vtx[2] - vtx[0], vtx[1] - vtx[0]));
-        norm = modelViewMatrix * glm::vec4(norm, 0.f);
+        glm::vec3 norm = glm::vec4(glm::normalize(norms[0] + norms[1] + norms[2]), 0.f);
         if (glm::dot(norm, cullDirection) <= 0) { continue; } 
 
         float intensity = glm::dot(norm, lightDirection);
-        if (intensity <= 0) { intensity = .1f; }
+        if (intensity <= .0f) { intensity = .0f; }
 
         if (texture) {
-            Triangle::fillTexture(screenCoords, tex, image, texture, intensity, zBuffer);
+            //Triangle::fillTexture(screenCoords, tex, image, texture, intensity, zBuffer);
+            Triangle::fillTextureGouraud(screenCoords, tex, norms, image, texture, lightDirection, zBuffer);
         }
         else {
             Triangle::fill(screenCoords, image, White * intensity, zBuffer);
@@ -81,7 +83,7 @@ static void renderModelObject(const ModelObject &object, const Camera &camera, T
 void renderScene(const Scene &scene, const Camera &camera, TGAImage &image) {
     const int width = image.get_width();
     const int height = image.get_height();
-    const glm::mat4 projectionMatrix = camera.perspective(width / height);
+    const glm::mat4 projectionMatrix = camera.perspective(width / (float)height);
     const glm::vec4 lightDirection = camera.viewMatrix * scene.lightDirection;
 
     float* zBuffer = new float[width * height];

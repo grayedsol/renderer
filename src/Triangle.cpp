@@ -1,6 +1,7 @@
 #include "Triangle.hpp"
 #include "Line.hpp"
 #include <utility>
+#include "glm/ext/matrix_transform.hpp"
 
 void Triangle::boundingBox(const ivec2 tri[3], ivec2 out[2]) {
     out[0] = {
@@ -90,8 +91,9 @@ void Triangle::fill(const vec3 tri[3], TGAImage &image, const TGAColor &color, f
     }
 }
 
-static glm::vec3 interpolateTexture(float r, float g, float b, const glm::vec3 tex[3]) {
+static glm::vec3 interpolate(float r, float g, float b, const glm::vec3 tex[3]) {
     glm::vec3 sum{ 0, 0, 0 };
+    glm::vec3 one = tex[0]; glm::vec3 two = tex[1]; glm::vec3 three = tex[2];
     sum += tex[0] * r;
     sum += tex[1] * g;
     sum += tex[2] * b;
@@ -124,7 +126,44 @@ void Triangle::fillTexture(const vec3 tri[3], const vec3 tex[3], TGAImage &image
                 float z = twoArea / ((r/tri[0].z) + (g/tri[2].z) + (b/tri[1].z));
                 if (zBuffer[x+(y*width)] < z) {
                     zBuffer[x+(y*width)] = z;
-                    glm::vec3 point = interpolateTexture(r, g, b, tex) / twoArea;
+                    glm::vec3 point = interpolate(r, g, b, tex) / twoArea;
+                    TGAColor color = texture->get(int(texWidth * point.x), int(texHeight - texHeight * point.y)) * intensity;
+                    image.set(x, y, color);
+                }
+            }
+        }
+    }
+}
+
+void Triangle::fillTextureGouraud(const vec3 tri[3], const vec3 tex[3], const vec3 norm[3], TGAImage &image, const TGAImage *texture, const vec3 lightDirection, float *zBuffer) {
+    ivec2 bounds[2];
+    vec2 t2d[3];
+    for (int i = 0; i < 3; i++) { t2d[i] = vec2{tri[i].x, tri[i].y}; }
+    float twoArea = edge(t2d[0], t2d[1], t2d[2]);
+    if (twoArea < 0) {
+        std::swap(t2d[1], t2d[2]);
+        twoArea *= -1.f;
+    }
+    boundingBox(t2d, bounds);
+    for (int i = 0; i < 2; i++) {
+        clamp(ivec2{0,0}, ivec2{image.get_width() - 1, image.get_height() - 1}, bounds[i]);
+    }
+
+    int width = image.get_width();
+    int texWidth = texture->get_width();
+    int texHeight = texture->get_height();
+    for (int x = bounds[0].x; x <= bounds[1].x; x++) {
+        for (int y = bounds[0].y; y <= bounds[1].y; y++) {
+            float r = edge(t2d[1], t2d[2], vec2{x,y});
+            float g = edge(t2d[0], t2d[1], vec2{x,y});
+            float b = edge(t2d[2], t2d[0], vec2{x,y});
+            if ((r >= 0 && g >= 0 && b >=0)) {
+                float z = twoArea / ((r/tri[0].z) + (g/tri[2].z) + (b/tri[1].z));
+                if (zBuffer[x+(y*width)] < z) {
+                    zBuffer[x+(y*width)] = z;
+                    float intensity = glm::dot(glm::normalize(interpolate(r, g, b, norm)), lightDirection);
+                    if (intensity <= .0f) { intensity = .0f; }
+                    glm::vec3 point = interpolate(r, g, b, tex) / twoArea;
                     TGAColor color = texture->get(int(texWidth * point.x), int(texHeight - texHeight * point.y)) * intensity;
                     image.set(x, y, color);
                 }

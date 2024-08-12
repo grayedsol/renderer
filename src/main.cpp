@@ -10,8 +10,8 @@ int main(int argc, char** argv) {
     TGAImage image(800, 800, TGAImage::RGB);
     Model model(argc > 1 ? argv[1] : "obj/head.obj");
 
-    model.rotateX(glm::radians(-30.f));
-    model.rotateY(glm::radians(140.f));
+    model.rotateX(glm::radians(0.f));
+    model.rotateY(glm::radians(180.f));
     model.move(glm::vec3(0.f, 0.f, 0.f));
 
     Scene scene;
@@ -19,8 +19,8 @@ int main(int argc, char** argv) {
 
     Camera camera(glm::radians(65.f), .1f, 10.f);
     camera.move(glm::vec3(0.f, 0.f, -2.f));
-    camera.rotate(glm::radians(0.f), glm::vec3{1.f, 0.f, 0.f});
-    camera.rotate(glm::radians(0.f), glm::vec3{0.f, 1.f, 0.f});
+    camera.rotate(glm::radians(20.f), glm::vec3{1.f, 0.f, 0.f});
+    camera.rotate(glm::radians(45.f), glm::vec3{0.f, 1.f, 0.f});
 
     renderScene(scene, camera, image);
 
