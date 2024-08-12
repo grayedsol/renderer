@@ -2,6 +2,21 @@
 #include <string.h>
 #include "Model.hpp"
 
+void Model::calculateNormals(ModelObject& object) {
+    object.computedNormals.resize(object.vertices.size(), glm::vec3{ 0.f, 0.f, 0.f });
+    for (auto& face : object.faces) {
+        glm::vec3 vtx[3];
+        for (int i = 0; i < 3; i++) {
+            vtx[i] = object.vertices.at(face[i][VERTEX]);
+        }
+        glm::vec3 surfaceNormal = glm::normalize(glm::cross(vtx[2] - vtx[0], vtx[1] - vtx[0]));
+        for (int i = 0; i < 3; i++) {
+            object.computedNormals.at(face[i][VERTEX]) += surfaceNormal;
+        }
+    }
+    for (auto& normal : object.computedNormals) { normal = glm::normalize(normal); }
+}
+
 void Model::loadObject(char line[], int lineSize, FILE *objFile) {
     char objectName[512];
     int scanResult = sscanf(line, "o %s", objectName);
@@ -61,6 +76,7 @@ void Model::loadObject(char line[], int lineSize, FILE *objFile) {
     printf("Object \"%s\"\n", objectName);
     printf("Vertices: %d | Faces: %d | ", object.vertices.size(), object.faces.size());
     printf("Texture vertices: %d | Vertex normals: %d\n", object.textureUVs.size(), object.normals.size());
+    calculateNormals(object);
     vertexIndex += object.vertices.size();
     textureUVIndex += object.textureUVs.size();
     normalIndex += object.normals.size();

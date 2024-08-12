@@ -22,6 +22,7 @@ private:
 	glm::mat4 modelMatrix = glm::identity<glm::mat4>();
 
 	void loadObject(char line[], int lineSize, FILE* objFile);
+	void calculateNormals(ModelObject& object);
 
 	void loadMaterial(char line[], int lineSize, FILE* materialFile);
 	void loadMaterials(const char* materialPath);

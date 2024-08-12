@@ -14,6 +14,7 @@ private:
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> textureUVs;
 	std::vector<glm::vec3> normals;
+    std::vector<glm::vec3> computedNormals;
 	std::vector<std::vector<glm::ivec3>> faces;
 public:
     const char* name = nullptr;
@@ -33,6 +34,7 @@ public:
         swap(lhs.vertices, rhs.vertices);
         swap(lhs.textureUVs, rhs.textureUVs);
         swap(lhs.normals, rhs.normals);
+        swap(lhs.computedNormals, rhs.computedNormals);
         swap(lhs.faces, rhs.faces);
     }
 
@@ -46,6 +48,9 @@ public:
 
 	glm::vec3 getNormal(unsigned int i) const { return normals.at(i); }
 	glm::vec3 getNormal(glm::ivec3 vec) const { return normals.at(vec[NORMAL]); }
+
+    glm::vec3 getComputedNormal(unsigned int i) const { return computedNormals.at(i); }
+    glm::vec3 getComputedNormal(glm::ivec3 vec) const { return computedNormals.at(vec[VERTEX]); }
 
 	std::vector<glm::ivec3> getFace(int i) const { return faces.at(i); }
 	const std::vector<std::vector<glm::ivec3>>& getFaces() const { return faces; }
