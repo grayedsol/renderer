@@ -166,24 +166,26 @@ void Triangle::fillTextureGouraud(mat3 tri, mat3 uv, mat3 norms, TGAImage &image
     }
 }
 
-void Triangle::fillGradient(const ivec2 tri[3], TGAImage &image) {
+void Triangle::fillGradient(mat3 tri, TGAImage &image) {
+    float twoArea = edge(tri);
+    if (twoArea < 0) {
+        std::swap(tri[1], tri[2]);
+        twoArea *= -1.f;
+    }
     ivec2 bounds[2];
-    ivec2 t[3] = {tri[0], tri[1], tri[2]};
-    float twoArea = edge(t[0], t[1], t[2]);
-    if (twoArea < 0) { std::swap(t[1], t[2]); twoArea *= -1.f; }
-    boundingBox(t, bounds);
+    boundingBox(tri, bounds);
+    for (int i = 0; i < 2; i++) {
+        clamp(ivec2{0,0}, ivec2{image.get_width() - 1, image.get_height() - 1}, bounds[i]);
+    }
 
     for (int x = bounds[0].x; x <= bounds[1].x; x++) {
         for (int y = bounds[0].y; y <= bounds[1].y; y++) {
-            const ivec2 pt{x,y};
-            int r = edge(t[1], t[2], pt);
-            int g = edge(t[0], t[1], pt);
-            int b = edge(t[2], t[0], pt);
-            if ((r | g | b) > 0) {
+            vec3 bary = Triangle::barycentric(tri, vec3{x,y,0.f}) / twoArea;
+            if ((bary[0] >= 0 && bary[1] >= 0 && bary[2] >=0)) {
                 image.set(x, y, TGAColor{
-                    (unsigned char)((r/twoArea) * 255),
-                    (unsigned char)((g/twoArea) * 255),
-                    (unsigned char)((b/twoArea) * 255),
+                    (unsigned char)(bary[0] * 255),
+                    (unsigned char)(bary[1] * 255),
+                    (unsigned char)(bary[2] * 255),
                     255
                 });
             }

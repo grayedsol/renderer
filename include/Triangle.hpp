@@ -29,5 +29,5 @@ namespace Triangle {
 
     void fillTextureGouraud(mat3 tri, mat3 uv, mat3 norms, TGAImage& image, const TGAImage* texture, const vec3 lightDirection, float* zBuffer);
 
-    void fillGradient(const ivec2 tri[3], TGAImage& image);
+    void fillGradient(mat3 tri, TGAImage& image);
 }
