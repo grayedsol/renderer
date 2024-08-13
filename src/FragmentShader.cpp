@@ -1,5 +1,14 @@
 #include "FragmentShader.hpp"
 
+TGAColor RGBShader::operator()(const vec3 baryCoords, const mat3 norms) const {
+    return TGAColor{
+        (unsigned char)(baryCoords.r * 255),
+        (unsigned char)(baryCoords.g * 255),
+        (unsigned char)(baryCoords.b * 255),
+        255
+    };
+}
+
 TGAColor GouraudShader::operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv) const {
     float intensity = std::max(0.f, -glm::dot(norms * baryCoords, lightDirection));
     const int texWidth = texture.get_width();
@@ -12,3 +21,5 @@ TGAColor GouraudShaderWhite::operator()(const vec3 baryCoords, const mat3 norms)
     float intensity = std::max(0.f, -glm::dot(norms * baryCoords, lightDirection));
 	return TGAColor{ 255, 255, 255, 255 } * intensity;
 }
+
+
