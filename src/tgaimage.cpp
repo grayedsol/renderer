@@ -16,6 +16,8 @@ TGAImage::TGAImage(int w, int h, int bpp) : data(NULL), width(w), height(h), byt
 	unsigned long nbytes = width*height*bytespp;
 	data = new unsigned char[nbytes];
 	memset(data, 0, nbytes);
+	zBuffer = new float[width*height];
+	memset(zBuffer, -10000.f, width*height*sizeof(float));
 }
 
 TGAImage::TGAImage(const TGAImage &img) {
@@ -25,10 +27,13 @@ TGAImage::TGAImage(const TGAImage &img) {
 	unsigned long nbytes = width*height*bytespp;
 	data = new unsigned char[nbytes];
 	memcpy(data, img.data, nbytes);
+	zBuffer = new float[width*height];
+	memcpy(zBuffer, img.zBuffer, width*height*sizeof(float));
 }
 
 TGAImage::~TGAImage() {
 	if (data) delete [] data;
+	if (zBuffer) delete [] zBuffer;
 }
 
 TGAImage & TGAImage::operator =(const TGAImage &img) {
@@ -313,8 +318,13 @@ unsigned char *TGAImage::buffer() {
 	return data;
 }
 
+float *TGAImage::get_zBuffer() {
+	return zBuffer;
+}
+
 void TGAImage::clear() {
 	memset((void *)data, 0, width*height*bytespp);
+	memset(zBuffer, -10000.f, width*height*sizeof(float));
 }
 
 bool TGAImage::scale(int w, int h) {
