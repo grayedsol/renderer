@@ -1,7 +1,6 @@
 #include "Triangle.hpp"
 #include "Line.hpp"
 #include <utility>
-#include "glm/ext/matrix_transform.hpp"
 
 glm::imat2x2 Triangle::boundingBox(const mat3x2 tri) {
 	return imat2x2 {
