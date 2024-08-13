@@ -4,7 +4,7 @@
 #include "glm/ext/matrix_transform.hpp"
 
 glm::imat2x2 Triangle::boundingBox(const imat3x2 tri) {
-    return imat2x2 {
+	return imat2x2 {
         {
             std::min(tri[0].x, std::min(tri[1].x, tri[2].x)), 
             std::min(tri[0].y, std::min(tri[1].y, tri[2].y))
@@ -12,6 +12,20 @@ glm::imat2x2 Triangle::boundingBox(const imat3x2 tri) {
         {
             std::max(tri[0].x, std::max(tri[1].x, tri[2].x)), 
             std::max(tri[0].y, std::max(tri[1].y, tri[2].y))
+        }
+    };
+}
+
+glm::imat2x2 Triangle::boundingBox(int screenWidth, int screenHeight, const imat3x2 tri) {
+    using std::min, std::max;
+    return {
+        {
+            max(0, min(screenWidth - 1, min(tri[0].x, min(tri[1].x, tri[2].x)))),
+            max(0, min(screenHeight - 1, min(tri[0].y, min(tri[1].y, tri[2].y))))
+        },
+        {
+            max(0, min(screenWidth - 1, max(tri[0].x, max(tri[1].x, tri[2].x)))),
+            max(0, min(screenWidth - 1, max(tri[0].y, max(tri[1].y, tri[2].y))))
         }
     };
 }
@@ -29,31 +43,18 @@ glm::imat2x2 Triangle::boundingBox(const mat3 tri) {
     };
 }
 
-void clamp(const glm::ivec2 min, const glm::ivec2 max, glm::ivec2 &out) {
-    out.x = std::max(min.x, std::min(max.x, out.x));
-    out.y = std::max(min.y, std::min(max.y, out.y));
-}
-
-void Triangle::draw(const imat3x2 tri, TGAImage &image, const TGAColor &color) {
-    drawLine(tri[0], tri[1], image, color);
-    drawLine(tri[1], tri[2], image, color);
-    drawLine(tri[2], tri[0], image, color);
-}
-
-static int edge(const glm::ivec2 a, const glm::ivec2 b, const glm::ivec2 c) {
-    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
-}
-
-static int edge(const glm::imat3x2 m) {
-    return (m[1].x - m[0].x) * (m[2].y - m[0].y) - (m[1].y - m[0].y) * (m[2].x - m[0].x);
-}
-
-static float edge(const glm::vec3 a, const glm::vec3 b, const glm::vec3 c) {
-    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
-}
-
-static float edge(const glm::mat3 m) {
-    return (m[1].x - m[0].x) * (m[2].y - m[0].y) - (m[1].y - m[0].y) * (m[2].x - m[0].x);
+glm::imat2x2 Triangle::boundingBox(int screenWidth, int screenHeight, const mat3 tri) {
+    using std::min, std::max;
+    return {
+        {
+            max(0, min(screenWidth - 1, (int)min(tri[0].x, min(tri[1].x, tri[2].x)))),
+            max(0, min(screenHeight - 1, (int)min(tri[0].y, min(tri[1].y, tri[2].y))))
+        },
+        {
+            max(0, min(screenWidth - 1, (int)max(tri[0].x, max(tri[1].x, tri[2].x)))),
+            max(0, min(screenWidth - 1, (int)max(tri[0].y, max(tri[1].y, tri[2].y))))
+        }
+    };
 }
 
 glm::vec3 Triangle::barycentric(const mat3 tri, const vec3 point) {
@@ -64,9 +65,15 @@ glm::vec3 Triangle::barycentric(const mat3 tri, const vec3 point) {
     };
 }
 
+void Triangle::draw(const imat3x2 tri, TGAImage &image, const TGAColor &color) {
+    drawLine(tri[0], tri[1], image, color);
+    drawLine(tri[1], tri[2], image, color);
+    drawLine(tri[2], tri[0], image, color);
+}
+
 void Triangle::fill2d(imat3x2 tri, TGAImage &image, const TGAColor &color) {
-    if (edge(tri[0], tri[1], tri[2]) < 0) { std::swap(tri[1], tri[2]); }
-    imat2x2 bounds = boundingBox(tri);
+    if (edge(tri) < 0) { std::swap(tri[1], tri[2]); }
+    imat2x2 bounds = boundingBox(image.get_width(), image.get_height(), tri);
 
     for (int x = bounds[0].x; x <= bounds[1].x; x++) {
         for (int y = bounds[0].y; y <= bounds[1].y; y++) {
@@ -84,15 +91,12 @@ void Triangle::fill(mat3 tri, TGAImage &image, const TGAColor &color, float *zBu
         std::swap(tri[1], tri[2]);
         twoArea *= -1.f;
     }
-    imat2x2 bounds = boundingBox(tri);
-    for (int i = 0; i < 2; i++) {
-        clamp(ivec2{0,0}, ivec2{image.get_width() - 1, image.get_height() - 1}, bounds[i]);
-    }
+    imat2x2 bounds = boundingBox(image.get_width(), image.get_height(), tri);
 
     int width = image.get_width();
     for (int x = bounds[0].x; x <= bounds[1].x; x++) {
         for (int y = bounds[0].y; y <= bounds[1].y; y++) {
-            vec3 bary = Triangle::barycentric(tri, vec3{x,y,0.f}) / twoArea;
+            vec3 bary = barycentric(tri, vec3{x,y,0.f}) / twoArea;
             if ((bary[0] >= 0 && bary[1] >= 0 && bary[2] >=0)) {
                 float z = glm::dot(bary, vec3{tri[0].z, tri[1].z, tri[2].z});
                 if (zBuffer[x+(y*width)] < z) {
@@ -111,10 +115,7 @@ void Triangle::fillTexture(mat3 tri, mat3 uv, TGAImage &image, const TGAImage *t
         std::swap(uv[1], uv[2]);
         twoArea *= -1.f;
     }
-    imat2x2 bounds = boundingBox(tri);
-    for (int i = 0; i < 2; i++) {
-        clamp(ivec2{0,0}, ivec2{image.get_width() - 1, image.get_height() - 1}, bounds[i]);
-    }
+    imat2x2 bounds = boundingBox(image.get_width(), image.get_height(), tri);
 
     const int width = image.get_width();
     const int texWidth = texture->get_width();
@@ -143,10 +144,7 @@ void Triangle::fillTextureGouraud(mat3 tri, mat3 uv, mat3 norms, TGAImage &image
         std::swap(uv[1], uv[2]);
         twoArea *= -1.f;
     }
-    imat2x2 bounds = boundingBox(tri);
-    for (int i = 0; i < 2; i++) {
-        clamp(ivec2{0,0}, ivec2{image.get_width() - 1, image.get_height() - 1}, bounds[i]);
-    }
+    imat2x2 bounds = boundingBox(image.get_width(), image.get_height(), tri);
 
     const int width = image.get_width();
     const int texWidth = texture->get_width();
@@ -175,10 +173,7 @@ void Triangle::fillGradient(mat3 tri, TGAImage &image) {
         std::swap(tri[1], tri[2]);
         twoArea *= -1.f;
     }
-    imat2x2 bounds = boundingBox(tri);
-    for (int i = 0; i < 2; i++) {
-        clamp(ivec2{0,0}, ivec2{image.get_width() - 1, image.get_height() - 1}, bounds[i]);
-    }
+    imat2x2 bounds = boundingBox(image.get_width(), image.get_height(), tri);
 
     for (int x = bounds[0].x; x <= bounds[1].x; x++) {
         for (int y = bounds[0].y; y <= bounds[1].y; y++) {

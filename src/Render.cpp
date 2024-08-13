@@ -1,5 +1,5 @@
 #include "Render.hpp"
-#include "Triangle.hpp"
+#include "Rasterize.hpp"
 #include "Line.hpp"
 #include "VertexShader.hpp"
 
@@ -27,10 +27,8 @@ void drawModelWire(const Model* model, TGAImage& image) {
 
 }
 
-static void renderModelObject(const ModelObject &object, TGAImage &image, const VertexShader& vShader, const glm::vec3 lightDirection, float* zBuffer) {
-    /* May be nullptr */
-    const TGAImage* texture = object.material->texture->texture.get();
-
+template<typename FShader>
+static void renderModelObject(const ModelObject &object, TGAImage &image, const VertexShader& vShader, const FShader fragShader) {
     for (auto& face : object.getFaces()) {
         glm::mat3 window; /* Window coordinates */
         glm::mat3 uv; /* Texture UV coordinates */
@@ -45,13 +43,7 @@ static void renderModelObject(const ModelObject &object, TGAImage &image, const 
         const glm::vec3 norm = glm::normalize(norms[0] + norms[1] + norms[2]);
         if (glm::dot(norm, glm::vec3{ 0, 0, 1 }) >= 0) { continue; }
 
-        if (texture) {
-            Triangle::fillTextureGouraud(window, uv, norms, image, texture, lightDirection, zBuffer);
-        }
-        else {
-            float intensity = -std::min(0.f, glm::dot(norm, lightDirection));
-            Triangle::fill(window, image, White * intensity, zBuffer);
-        }
+        Rasterize::triangle(window, norms, uv, fragShader, image);
     }
 }
 
@@ -65,15 +57,20 @@ void renderScene(const Scene &scene, const Camera &camera, TGAImage &image) {
 
     const glm::vec4 lightDirection = camera.viewMatrix * scene.lightDirection;
 
-    float* zBuffer = new float[width * height];
-    for (int i = 0; i < width * height; i++) { zBuffer[i] = -10000.f; }
-
     for (auto& model : scene.models) {
         vShader.modelViewMatrix = camera.viewMatrix * model.getModelMatrix();
         for (auto& object : model.getModelObjects()) {
-            renderModelObject(object, image, vShader, lightDirection, zBuffer);
+            /* Texture may be nullptr */
+            TGAImage* texture = object.material->texture->texture.get();
+            
+            if (texture) {
+                GouraudShader fragShader(lightDirection, *texture);
+                renderModelObject(object, image, vShader, fragShader);
+            }
+            else {
+                GouraudShaderWhite fragShader(lightDirection);
+                renderModelObject(object, image, vShader, fragShader);
+            }
         }
     }
-
-    delete[] zBuffer;
 }

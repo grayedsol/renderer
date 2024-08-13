@@ -11,6 +11,7 @@ set(SOURCES src/main.cpp
     src/tgaimage.cpp
     src/Model.cpp
     src/Render.cpp
+    src/FragmentShader.cpp
     )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
