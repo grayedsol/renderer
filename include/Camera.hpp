@@ -26,4 +26,13 @@ struct Camera {
     glm::mat4x4 perspective(float aspectRatio) const {
         return glm::perspective(fovY, aspectRatio, near, far);
     }
+
+    glm::mat4 viewport(int x, int y, int w, int h) const {
+        return glm::mat4 {
+            {w*.5f, 0.f, 0.f, 0.f},
+            {0.f, h*.5f, 0.f, 0.f},
+            {0.f, 0.f, (far-near)*.5f, 0.f},
+            {x+w*.5f, y+h*.5f, (far+near)*.5f, 1}
+        };
+    }
 };

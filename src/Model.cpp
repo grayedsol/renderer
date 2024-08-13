@@ -9,7 +9,7 @@ void Model::calculateNormals(ModelObject& object) {
         for (int i = 0; i < 3; i++) {
             vtx[i] = object.vertices.at(face[i][VERTEX]);
         }
-        glm::vec3 surfaceNormal = glm::normalize(glm::cross(vtx[2] - vtx[0], vtx[1] - vtx[0]));
+        glm::vec3 surfaceNormal = glm::normalize(glm::cross(vtx[1] - vtx[0], vtx[2] - vtx[0]));
         for (int i = 0; i < 3; i++) {
             object.computedNormals.at(face[i][VERTEX]) += surfaceNormal;
         }

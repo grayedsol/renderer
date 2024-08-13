@@ -1,6 +1,7 @@
 #include "Render.hpp"
 #include "Triangle.hpp"
 #include "Line.hpp"
+#include "VertexShader.hpp"
 
 const TGAColor White{ 255, 255, 255, 255 };
 const TGAColor Red{ 255, 0, 0, 255 };
@@ -26,56 +27,30 @@ void drawModelWire(const Model* model, TGAImage& image) {
 
 }
 
-static void renderModelObject(const ModelObject &object, const Camera &camera, TGAImage &image, const glm::mat4x4 modelMatrix, const glm::mat4 projectionMatrix, const glm::vec3 lightDirection, float* zBuffer) {
-    const glm::vec3 cullDirection = glm::vec4{ 0, 0, 1, 0};
-
-    const float halfWidth = image.get_width() * 0.5f;
-    const float halfHeight = image.get_height() * 0.5f;
-
+static void renderModelObject(const ModelObject &object, TGAImage &image, const VertexShader& vShader, const glm::vec3 lightDirection, float* zBuffer) {
     /* May be nullptr */
     const TGAImage* texture = object.material->texture->texture.get();
 
-    const glm::mat4 modelViewMatrix = camera.viewMatrix * modelMatrix;
-
     for (auto& face : object.getFaces()) {
-        glm::vec3 vtx[3];
-        glm::vec3 tex[3];
-        glm::vec3 norms[3];
-        glm::vec3 screenCoords[3];
+        glm::mat3 window; /* Window coordinates */
+        glm::mat3 uv; /* Texture UV coordinates */
+        glm::mat3 norms; /* Vertex normals */
 
-        bool renderTriangle = true;
-        for (int i = 0; i < 3 && renderTriangle; i++) {
-            vtx[i] = object.getVertex(face[i]);
-            tex[i] = object.getTextureUV(face[i]);
-            norms[i] = modelViewMatrix * glm::vec4(object.getComputedNormal(face[i]), 0.f);
-
-            glm::vec4 vClip = projectionMatrix * modelViewMatrix * glm::vec4(vtx[i], 1.f);
-            
-            glm::vec3 vNDC = { vClip.x / vClip.w, vClip.y / vClip.w, vClip.z / vClip.w };
-
-            renderTriangle = vNDC.z >= 0.f && vNDC.z <= 1.f;
-            if (!renderTriangle) { break; }
-            
-            screenCoords[i] = {
-                (vNDC.x * halfWidth) + halfWidth,
-                (vNDC.y * halfHeight) + halfHeight,
-                (vNDC.z * (camera.far - camera.near) * 0.5f) + ((camera.far + camera.near) * 0.5f)
-            };
+        for (int i = 0; i < 3; i++) {
+            window[i] = vShader(object.getVertex(face[i]));
+            uv[i] = object.getTextureUV(face[i]);
+            norms[i] = vShader.transformNormal(object.getNormal(face[i]));
         }
-        if (!renderTriangle) { continue; }
         
-        glm::vec3 norm = glm::vec4(glm::normalize(norms[0] + norms[1] + norms[2]), 0.f);
-        if (glm::dot(norm, cullDirection) <= 0) { continue; } 
-
-        float intensity = glm::dot(norm, lightDirection);
-        if (intensity <= .0f) { intensity = .0f; }
+        const glm::vec3 norm = glm::normalize(norms[0] + norms[1] + norms[2]);
+        if (glm::dot(norm, glm::vec3{ 0, 0, 1 }) >= 0) { continue; }
 
         if (texture) {
-            //Triangle::fillTexture(screenCoords, tex, image, texture, intensity, zBuffer);
-            Triangle::fillTextureGouraud(screenCoords, tex, norms, image, texture, lightDirection, zBuffer);
+            Triangle::fillTextureGouraud(window, uv, norms, image, texture, lightDirection, zBuffer);
         }
         else {
-            Triangle::fill(screenCoords, image, White * intensity, zBuffer);
+            float intensity = -std::min(0.f, glm::dot(norm, lightDirection));
+            Triangle::fill(window, image, White * intensity, zBuffer);
         }
     }
 }
@@ -83,16 +58,20 @@ static void renderModelObject(const ModelObject &object, const Camera &camera, T
 void renderScene(const Scene &scene, const Camera &camera, TGAImage &image) {
     const int width = image.get_width();
     const int height = image.get_height();
-    const glm::mat4 projectionMatrix = camera.perspective(width / (float)height);
+
+    VertexShader vShader;
+    vShader.projectionMatrix = camera.perspective((float)width / (float)height);
+    vShader.viewportMatrix = camera.viewport(0, 0, width, height);
+
     const glm::vec4 lightDirection = camera.viewMatrix * scene.lightDirection;
 
     float* zBuffer = new float[width * height];
     for (int i = 0; i < width * height; i++) { zBuffer[i] = -10000.f; }
 
     for (auto& model : scene.models) {
-        const glm::mat4 modelMatrix = model.getModelMatrix();
+        vShader.modelViewMatrix = camera.viewMatrix * model.getModelMatrix();
         for (auto& object : model.getModelObjects()) {
-            renderModelObject(object, camera, image, modelMatrix, projectionMatrix, lightDirection, zBuffer);
+            renderModelObject(object, image, vShader, lightDirection, zBuffer);
         }
     }
 

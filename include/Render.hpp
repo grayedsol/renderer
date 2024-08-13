@@ -2,6 +2,7 @@
 #include "tgaimage.hpp"
 #include "Scene.hpp"
 #include "Camera.hpp"
+#include "FragmentShader.hpp"
 
 extern const TGAColor White;
 extern const TGAColor Red;
