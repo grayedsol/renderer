@@ -1,6 +1,6 @@
 #include "FragmentShader.hpp"
 
-TGAColor RGBShader::operator()(const vec3 baryCoords, const mat3 norms) const {
+TGAColor RGBShader::operator()(const vec3 baryCoords) const {
     return TGAColor{
         (unsigned char)(baryCoords.r * 255),
         (unsigned char)(baryCoords.g * 255),
