@@ -1,6 +1,6 @@
 #pragma once
-#include "Scene.hpp"
 #include "Camera.hpp"
+#include "Scene.hpp"
 
 extern const TGAColor White;
 extern const TGAColor Red;

@@ -1,7 +1,7 @@
 #pragma once
 #include "ModelObject.hpp"
-#include "glm/mat4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
+#include "glm/mat4x4.hpp"
 
 class Model {
 private:
@@ -26,6 +26,7 @@ private:
 
 	void loadMaterial(char line[], int lineSize, FILE* materialFile);
 	void loadMaterials(const char* materialPath);
+
 public:
 	Model(const char* filename);
 
@@ -36,19 +37,19 @@ public:
 
 	glm::mat4 getModelMatrix() const { return modelMatrix; }
 
-    void move(glm::vec3 translationVec) {
-        modelMatrix = glm::translate(modelMatrix, translationVec);
-    }
+	void move(glm::vec3 translationVec) {
+		modelMatrix = glm::translate(modelMatrix, translationVec);
+	}
 
-    void rotate(float angle, glm::vec3 rotationVec) {
-        modelMatrix = glm::rotate(modelMatrix, angle, rotationVec);
-    }
+	void rotate(float angle, glm::vec3 rotationVec) {
+		modelMatrix = glm::rotate(modelMatrix, angle, rotationVec);
+	}
 
-    void rotateX(float angle) { rotate(angle, glm::vec3{1.f, 0.f, 0.f}); }
-    void rotateY(float angle) { rotate(angle, glm::vec3{0.f, 1.f, 0.f}); }
-    void rotateZ(float angle) { rotate(angle, glm::vec3{0.f, 0.f, 1.f}); }
+	void rotateX(float angle) { rotate(angle, glm::vec3{ 1.f, 0.f, 0.f }); }
+	void rotateY(float angle) { rotate(angle, glm::vec3{ 0.f, 1.f, 0.f }); }
+	void rotateZ(float angle) { rotate(angle, glm::vec3{ 0.f, 0.f, 1.f }); }
 
-    void scale(glm::vec3 scaleVec) {
-        modelMatrix = glm::scale(modelMatrix, scaleVec);
-    }
+	void scale(glm::vec3 scaleVec) {
+		modelMatrix = glm::scale(modelMatrix, scaleVec);
+	}
 };
