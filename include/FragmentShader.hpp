@@ -9,6 +9,13 @@ struct FragmentShader {
     virtual TGAColor operator()(const vec3 baryCoords, const mat3 norms, const mat3 uvs) const = 0;
 };
 
+struct RGBShader : public FragmentShader {
+    TGAColor operator()(const vec3 baryCoords) const;
+    TGAColor operator()(const vec3 baryCoords, const mat3 norms, const mat3 uvs) const final override {
+        return (*this)(baryCoords);
+    }
+};
+
 struct GouraudShader : public FragmentShader {
     vec3 lightDirection;
     const TGAImage& texture;
