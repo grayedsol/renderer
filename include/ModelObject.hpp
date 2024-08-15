@@ -3,6 +3,7 @@
 #include "glm/vec3.hpp"
 #include <vector>
 
+class Model;
 class ModelObject {
 	friend class Model;
 
@@ -18,11 +19,13 @@ private:
 	std::vector<glm::vec3> computedNormals;
 	std::vector<std::vector<glm::ivec3>> faces;
 
+	const Model* model;
+
 public:
 	const char* name = nullptr;
 	Material* material = nullptr;
 
-	ModelObject(const char* objName) {
+	ModelObject(const Model* model, const char* objName) : model(model) {
 		name = strcpy(new char[strlen(objName) + 1], objName);
 	}
 	~ModelObject() { delete[] name; }
@@ -38,6 +41,7 @@ public:
 		swap(lhs.normals, rhs.normals);
 		swap(lhs.computedNormals, rhs.computedNormals);
 		swap(lhs.faces, rhs.faces);
+		swap(lhs.model, rhs.model);
 	}
 
 	ModelObject(ModelObject&& other) noexcept { swap(*this, other); }
@@ -56,4 +60,6 @@ public:
 
 	std::vector<glm::ivec3> getFace(int i) const { return faces.at(i); }
 	const std::vector<std::vector<glm::ivec3>>& getFaces() const { return faces; }
+
+	const Model* getModel() const { return model; }
 };

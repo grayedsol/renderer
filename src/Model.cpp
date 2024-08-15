@@ -20,7 +20,7 @@ void Model::calculateNormals(ModelObject& object) {
 void Model::loadObject(char line[], int lineSize, FILE* objFile) {
 	char objectName[512];
 	int scanResult = sscanf(line, "o %s", objectName);
-	ModelObject object(objectName);
+	ModelObject object(this, objectName);
 	while (fgets(line, lineSize, objFile)) {
 		if (line[0] == '#') { continue; }
 		else if (!strncmp(line, "v ", 2)) {
