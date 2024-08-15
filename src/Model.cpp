@@ -86,14 +86,24 @@ void Model::loadMaterial(char line[], int lineSize, FILE* materialFile) {
 	char materialName[512];
 	int scanResult = sscanf(line, "newmtl %s", materialName);
 	Material material(materialName);
+
+	char texturePath[512] = {0};
+	char tangentMapPath[512] = {0};
 	while (fgets(line, lineSize, materialFile)) {
 		if (line[0] == '#') { continue; }
 		else if (!strncmp(line, "map_Kd", 6)) {
-			char texturePath[512];
 			scanResult = sscanf(line, "map_Kd %s", texturePath);
-			material.texture = getTexture(texturePath);
+		}
+		else if (!strncmp(line, "norm", 4)) {
+			scanResult = sscanf(line, "norm %s", tangentMapPath);
 		}
 		else if (!strncmp(line, "newmtl", 6)) { break; }
+	}
+	if (texturePath[0] && tangentMapPath[0]) {
+		material.texture = getTexture(texturePath, tangentMapPath);
+	}
+	else if (texturePath[0]) {
+		material.texture = getTexture(texturePath);
 	}
 	materials.push_back(std::move(material));
 	if (!strncmp(line, "newmtl", 6)) { loadMaterial(line, lineSize, materialFile); }
@@ -136,10 +146,22 @@ Model::Model(const char* filename) {
 MatTexture* Model::getTexture(const char* path) {
 	/* Search for existing texture first */
 	for (auto& texture : textures) {
-		if (!strcmp(texture->path, path)) { return texture.get(); }
+		if (!strcmp(texture->path, path) && !texture->tangentMapPath) { return texture.get(); }
 	}
 	/* Load new texture if there wasn't a match */
 	textures.push_back(std::make_unique<MatTexture>(path));
+	return textures.back().get();
+}
+
+MatTexture *Model::getTexture(const char *path, const char *tangentMapPath) {
+	/* Search for existing texture first */
+	for (auto& texture : textures) {
+		if (!strcmp(texture->path, path) && !strcmp(texture->tangentMapPath, tangentMapPath)) {
+			return texture.get(); 
+		}
+	}
+	/* Load new texture if there wasn't a match */
+	textures.push_back(std::make_unique<MatTexture>(path, tangentMapPath));
 	return textures.back().get();
 }
 
