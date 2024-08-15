@@ -8,10 +8,10 @@ const TGAColor Red{ 255, 0, 0, 255 };
 const TGAColor Green{ 0, 255, 0, 255 };
 const TGAColor Blue{ 0, 0, 255, 255 };
 
-void drawModelWire(const Model* model, TGAImage& image) {
+void drawModelWire(const Model* model, OutImage& image) {
 	for (auto& object : model->getModelObjects()) {
-		const int width = image.get_width();
-		const int height = image.get_height();
+		const int width = image.getWidth();
+		const int height = image.getHeight();
 		for (auto& face : object.getFaces()) {
 			for (int i = 0; i < 3; i++) {
 				glm::vec3 v0 = object.getVertex(face[i]);
@@ -27,7 +27,7 @@ void drawModelWire(const Model* model, TGAImage& image) {
 }
 
 template<typename FShader>
-static void renderModelObject(const ModelObject& object, TGAImage& image, const VertexShader& vShader, const FShader fragShader) {
+static void renderModelObject(const ModelObject& object, OutImage& image, const VertexShader& vShader, const FShader fragShader) {
 	for (auto& face : object.getFaces()) {
 		glm::mat3 window; /* Window coordinates */
 		glm::mat3 uv;	  /* Texture UV coordinates */
@@ -46,9 +46,9 @@ static void renderModelObject(const ModelObject& object, TGAImage& image, const 
 	}
 }
 
-void renderScene(const Scene& scene, const Camera& camera, TGAImage& image) {
-	const int width = image.get_width();
-	const int height = image.get_height();
+void renderScene(const Scene& scene, const Camera& camera, OutImage& image) {
+	const int width = image.getWidth();
+	const int height = image.getHeight();
 
 	VertexShader vShader;
 	vShader.projectionMatrix = camera.perspective((float)width / (float)height);

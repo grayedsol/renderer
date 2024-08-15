@@ -9,7 +9,7 @@ namespace Rasterize {
 	using imat2x2 = glm::imat2x2;
 
 	template<typename FShader>
-	void triangle(mat3 tri, mat3 norms, mat3 uv, const FShader fragShader, TGAImage& image) {
+	void triangle(mat3 tri, mat3 norms, mat3 uv, const FShader fragShader, OutImage& image) {
 		static_assert(std::is_base_of<FragmentShader, FShader>());
 		float twoArea = Triangle::edge(tri);
 		if (twoArea < 0) {
@@ -18,10 +18,10 @@ namespace Rasterize {
 			std::swap(uv[1], uv[2]);
 			twoArea *= -1.f;
 		}
-		imat2x2 bounds = Triangle::boundingBox(image.get_width(), image.get_height(), tri);
+		imat2x2 bounds = Triangle::boundingBox(image.getWidth(), image.getHeight(), tri);
 
-		const int width = image.get_width();
-		float* zBuffer = image.get_zBuffer();
+		const int width = image.getWidth();
+		float* zBuffer = image.getZBuffer();
 		for (int x = bounds[0].x; x <= bounds[1].x; x++) {
 			for (int y = bounds[0].y; y <= bounds[1].y; y++) {
 				vec3 bary = Triangle::barycentric(tri, vec3{ x, y, 0.f }) / twoArea;

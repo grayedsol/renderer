@@ -7,7 +7,7 @@
 #include "Render.hpp"
 
 int main(int argc, char** argv) {
-	TGAImage image(800, 800, TGAImage::RGB);
+	OutImage image(800, 800, TGAImage::RGB);
 	Model model(argc > 1 ? argv[1] : "obj/head.obj");
 
 	model.rotateX(glm::radians(0.f));
@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 
 	renderScene(scene, camera, image);
 
-	image.write_tga_file("output.tga");
+	image.writeTGAFile("output.tga");
 
 	return 0;
 }

@@ -6,7 +6,7 @@
 #include "Line.hpp"
 #include <utility>
 
-void drawLine(int x0, int y0, int x1, int y1, TGAImage& image, const TGAColor& color) {
+void drawLine(int x0, int y0, int x1, int y1, OutImage& image, const TGAColor& color) {
 	unsigned int dy = std::abs(y1 - y0);
 	unsigned int dx = std::abs(x1 - x0);
 	const bool steep = dy > dx;

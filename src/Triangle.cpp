@@ -56,15 +56,15 @@ glm::vec3 Triangle::barycentric(const mat3 tri, const vec3 point) {
 	};
 }
 
-void Triangle::draw(const imat3x2 tri, TGAImage& image, const TGAColor& color) {
+void Triangle::draw(const imat3x2 tri, OutImage& image, const TGAColor& color) {
 	drawLine(tri[0], tri[1], image, color);
 	drawLine(tri[1], tri[2], image, color);
 	drawLine(tri[2], tri[0], image, color);
 }
 
-void Triangle::fill2(mat3x2 tri, TGAImage& image, const TGAColor& color) {
+void Triangle::fill2(mat3x2 tri, OutImage& image, const TGAColor& color) {
 	if (edge(tri) < 0) { std::swap(tri[1], tri[2]); }
-	imat2x2 bounds = boundingBox(image.get_width(), image.get_height(), tri);
+	imat2x2 bounds = boundingBox(image.getWidth(), image.getHeight(), tri);
 
 	for (int x = bounds[0].x; x <= bounds[1].x; x++) {
 		for (int y = bounds[0].y; y <= bounds[1].y; y++) {
@@ -77,15 +77,15 @@ void Triangle::fill2(mat3x2 tri, TGAImage& image, const TGAColor& color) {
 	}
 }
 
-void Triangle::fill3(mat3 tri, TGAImage& image, const TGAColor& color, float* zBuffer) {
+void Triangle::fill3(mat3 tri, OutImage& image, const TGAColor& color, float* zBuffer) {
 	float twoArea = edge(tri);
 	if (twoArea < 0) {
 		std::swap(tri[1], tri[2]);
 		twoArea *= -1.f;
 	}
-	imat2x2 bounds = boundingBox(image.get_width(), image.get_height(), tri);
+	imat2x2 bounds = boundingBox(image.getWidth(), image.getHeight(), tri);
 
-	int width = image.get_width();
+	int width = image.getWidth();
 	for (int x = bounds[0].x; x <= bounds[1].x; x++) {
 		for (int y = bounds[0].y; y <= bounds[1].y; y++) {
 			vec3 bary = barycentric(tri, vec3{ x, y, 0.f }) / twoArea;

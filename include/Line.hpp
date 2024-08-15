@@ -6,7 +6,7 @@
  */
 #pragma once
 #include "glm/ext/vector_int2.hpp"
-#include "tgaimage.hpp"
+#include "OutImage.hpp"
 
 /**
  * @brief Bresenham line drawing algorithim.
@@ -18,8 +18,8 @@
  * @param image Image to draw on.
  * @param color Color the line will be drawn in.
  */
-void drawLine(int x0, int y0, int x1, int y1, TGAImage& image, const TGAColor& color);
+void drawLine(int x0, int y0, int x1, int y1, OutImage& image, const TGAColor& color);
 
-inline void drawLine(glm::ivec2 p1, glm::ivec2 p2, TGAImage& image, const TGAColor& color) {
+inline void drawLine(glm::ivec2 p1, glm::ivec2 p2, OutImage& image, const TGAColor& color) {
 	drawLine(p1.x, p1.y, p2.x, p2.y, image, color);
 }

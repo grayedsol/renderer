@@ -3,7 +3,7 @@
 #include "glm/ext/matrix_float3x3.hpp"
 #include "glm/ext/matrix_int2x2.hpp"
 #include "glm/ext/matrix_int3x2.hpp"
-#include "tgaimage.hpp"
+#include "OutImage.hpp"
 
 namespace Triangle {
 	using ivec2 = glm::ivec2;
@@ -42,9 +42,9 @@ namespace Triangle {
 
 	vec3 barycentric(const mat3 tri, const vec3 point);
 
-	void draw(const imat3x2 tri, TGAImage& image, const TGAColor& color);
+	void draw(const imat3x2 tri, OutImage& image, const TGAColor& color);
 
-	void fill2(mat3x2 tri, TGAImage& image, const TGAColor& color);
+	void fill2(mat3x2 tri, OutImage& image, const TGAColor& color);
 
-	void fill3(mat3 tri, TGAImage& image, const TGAColor& color, float* zBuffer);
+	void fill3(mat3 tri, OutImage& image, const TGAColor& color, float* zBuffer);
 }

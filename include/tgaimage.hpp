@@ -75,7 +75,6 @@ protected:
 	int width;
 	int height;
 	int bytespp;
-	float* zBuffer = nullptr;
 
 	bool load_rle_data(std::ifstream& in);
 	bool unload_rle_data(std::ofstream& out);
@@ -103,6 +102,5 @@ public:
 	int get_height() const;
 	int get_bytespp();
 	unsigned char* buffer();
-	float* get_zBuffer();
 	void clear();
 };
