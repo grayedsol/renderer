@@ -26,21 +26,45 @@ void drawModelWire(const Model* model, OutImage& image) {
 	}
 }
 
+static glm::mat3x4 getTBN(const glm::mat3 tri, const glm::mat3 uv, const glm::vec3 normal) {
+	glm::vec3 edge1 = tri[1] - tri[0];
+	glm::vec3 edge2 = tri[2] - tri[1];
+	glm::mat3x2 edge = { { edge1.x, edge2.x }, { edge1.y, edge2.y }, { edge1.z, edge2.z } };
+
+	glm::vec3 deltaUV1 = uv[1] - uv[0];
+	glm::vec3 deltaUV2 = uv[2] - uv[1];
+	glm::vec2 deltaVs = { deltaUV2.y, -deltaUV1.y };
+	glm::vec2 deltaUs = { -deltaUV2.x, deltaUV1.x };
+
+	float discriminant = 1.f / (deltaUV1.x * deltaUV2.y - deltaUV2.x - deltaUV1.y);
+
+	return glm::mat3x4 {
+		glm::vec4{ discriminant * deltaVs * edge, 0.f },/* Tangent */
+		glm::vec4{ discriminant * deltaUs * edge, 0.f },/* Bitangent */
+		glm::vec4{ normal, 0.f }						/* Normal */
+	};
+}
+
 template<typename FShader>
 static void renderModelObject(const ModelObject& object, OutImage& image, const VertexShader& vShader, const FShader fragShader) {
 	for (auto& face : object.getFaces()) {
-		glm::mat3 window; /* Window coordinates */
-		glm::mat3 uv;	  /* Texture UV coordinates */
-		glm::mat3 norms;  /* Vertex normals */
+		glm::mat3 tri;		/* World Coordinates */
+		glm::mat3 window;	/* Window coordinates */
+		glm::mat3 uv;		/* Texture UV coordinates */
+		glm::mat3 norms; 	/* Vertex normals */
 
 		for (int i = 0; i < 3; i++) {
+			tri[i] = object.getVertex(face[i]);
 			window[i] = vShader(object.getVertex(face[i]));
 			uv[i] = object.getTextureUV(face[i]);
 			norms[i] = vShader.transformNormal(object.getNormal(face[i]));
 		}
 
-		const glm::vec3 norm = glm::normalize(norms[0] + norms[1] + norms[2]);
-		if (glm::dot(norm, glm::vec3{ 0, 0, 1 }) >= 0) { continue; }
+		const glm::vec3 surfaceNorm = glm::normalize(norms[0] + norms[1] + norms[2]);
+		if (glm::dot(surfaceNorm, glm::vec3{ 0, 0, 1 }) >= 0) { continue; }
+
+		glm::mat3 TBN = object.getModel()->getModelMatrix() * getTBN(tri, uv, surfaceNorm);
+		for (int i = 0; i < 3; i++) { TBN[i] = glm::normalize(TBN[i]); }
 
 		Rasterize::triangle(window, norms, uv, fragShader, image);
 	}
