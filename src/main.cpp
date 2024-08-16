@@ -19,8 +19,8 @@ int main(int argc, char** argv) {
 
 	Camera camera(glm::radians(65.f), .1f, 10.f);
 	camera.move(glm::vec3(0.f, 0.f, -2.f));
-	camera.rotate(glm::radians(20.f), glm::vec3{ 1.f, 0.f, 0.f });
-	camera.rotate(glm::radians(45.f), glm::vec3{ 0.f, 1.f, 0.f });
+	camera.rotate(glm::radians(0.f), glm::vec3{ 1.f, 0.f, 0.f });
+	camera.rotate(glm::radians(0.f), glm::vec3{ 0.f, 1.f, 0.f });
 
 	renderScene(scene, camera, image);
 

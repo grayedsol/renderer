@@ -11,10 +11,23 @@ TGAColor RGBShader::operator()(const vec3 baryCoords) const {
 
 TGAColor GouraudShader::operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv) const {
 	float intensity = std::max(0.f, -glm::dot(norms * baryCoords, lightDirection));
-	const int texWidth = texture.get_width();
-	const int texHeight = texture.get_height();
+	const int texWidth = texture.texture.get()->get_width();
+	const int texHeight = texture.texture.get()->get_height();
 	const vec3 texPoint = uv * baryCoords;
-	return texture.get(int(texWidth * texPoint.x), texHeight - int(texHeight * texPoint.y)) * intensity;
+	return texture.texture.get()->get(int(texWidth * texPoint.x), texHeight - int(texHeight * texPoint.y)) * intensity;
+}
+
+TGAColor GouraudShader::operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv, mat3 tbn) const {
+	const int texWidth = texture.texture.get()->get_width();
+	const int texHeight = texture.texture.get()->get_height();
+	const vec3 texPoint = uv * baryCoords;
+	tbn[2] = glm::normalize(norms * baryCoords);
+	TGAColor normPoint = texture.tangentMap.get()->get(int(texWidth * texPoint.x), texHeight - int(texHeight * texPoint.y));
+	vec3 norm = vec3{ normPoint.r, normPoint.g, normPoint.b } / 255.f;
+	norm = glm::normalize(norm * 2.f - 1.f);
+	float intensity = std::max(0.f, -glm::dot(glm::normalize(tbn * norm), lightDirection));
+
+	return texture.texture.get()->get(int(texWidth * texPoint.x), texHeight - int(texHeight * texPoint.y)) * intensity;
 }
 
 TGAColor GouraudShaderWhite::operator()(const vec3 baryCoords, const mat3 norms) const {
