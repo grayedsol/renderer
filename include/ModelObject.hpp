@@ -1,6 +1,7 @@
 #pragma once
 #include "Material.hpp"
 #include "glm/vec3.hpp"
+#include "glm/mat3x3.hpp"
 #include <vector>
 
 class Model;
@@ -17,8 +18,9 @@ private:
 	std::vector<glm::vec3> textureUVs;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec3> computedNormals;
+	std::vector<glm::mat3> computedTBNs;
 	std::vector<std::vector<glm::ivec3>> faces;
-
+	
 	const Model* model;
 
 public:
@@ -40,6 +42,7 @@ public:
 		swap(lhs.textureUVs, rhs.textureUVs);
 		swap(lhs.normals, rhs.normals);
 		swap(lhs.computedNormals, rhs.computedNormals);
+		swap(lhs.computedTBNs, rhs.computedTBNs);
 		swap(lhs.faces, rhs.faces);
 		swap(lhs.model, rhs.model);
 	}
@@ -57,6 +60,9 @@ public:
 
 	glm::vec3 getComputedNormal(unsigned int i) const { return computedNormals.at(i); }
 	glm::vec3 getComputedNormal(glm::ivec3 vec) const { return computedNormals.at(vec[VERTEX]); }
+
+	glm::mat3 getTBN(unsigned int i) const { return computedTBNs.at(i); }
+	glm::mat3 getTBN(glm::ivec3 vec) const { return computedTBNs.at(vec[VERTEX]); }
 
 	std::vector<glm::ivec3> getFace(int i) const { return faces.at(i); }
 	const std::vector<std::vector<glm::ivec3>>& getFaces() const { return faces; }

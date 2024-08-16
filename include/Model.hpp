@@ -23,6 +23,7 @@ private:
 
 	void loadObject(char line[], int lineSize, FILE* objFile);
 	void calculateNormals(ModelObject& object);
+	void calculateTBNs(ModelObject& object);
 
 	void loadMaterial(char line[], int lineSize, FILE* materialFile);
 	void loadMaterials(const char* materialPath);

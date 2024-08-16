@@ -2,6 +2,22 @@
 #include <stdio.h>
 #include <string.h>
 
+static void getTBN(const glm::mat3 tri, const glm::mat3 uv, glm::vec3& outTangent, glm::vec3 outBitangent) {
+	glm::vec3 edge1 = tri[1] - tri[0];
+	glm::vec3 edge2 = tri[2] - tri[0];
+	glm::mat3x2 edge = { { edge1.x, edge2.x }, { edge1.y, edge2.y }, { edge1.z, edge2.z } };
+
+	glm::vec3 deltaUV1 = uv[1] - uv[0];
+	glm::vec3 deltaUV2 = uv[2] - uv[0];
+	glm::vec2 deltaVs = { deltaUV2.y, -deltaUV1.y };
+	glm::vec2 deltaUs = { -deltaUV2.x, deltaUV1.x };
+
+	float discriminant = 1.f / (deltaUV1.x * deltaUV2.y - deltaUV2.x - deltaUV1.y);
+
+	outTangent = discriminant * deltaVs * edge;
+	outBitangent = discriminant * deltaUs * edge;
+}
+
 void Model::calculateNormals(ModelObject& object) {
 	object.computedNormals.resize(object.vertices.size(), glm::vec3{ 0.f, 0.f, 0.f });
 	for (auto& face : object.faces) {
@@ -15,6 +31,30 @@ void Model::calculateNormals(ModelObject& object) {
 		}
 	}
 	for (auto& normal : object.computedNormals) { normal = glm::normalize(normal); }
+}
+
+void Model::calculateTBNs(ModelObject& object) {
+	object.computedTBNs.resize(object.vertices.size(), glm::mat3(0.f));
+	for (auto& face : object.faces) {
+		glm::mat3 tri;
+		glm::mat3 uv;
+		for (int i = 0; i < 3; i++) {
+			tri[i] = object.getVertex(face[i]);
+			uv[i] = object.getTextureUV(face[i]);
+		}
+		glm::vec3 tangent;
+		glm::vec3 bitangent;
+		getTBN(tri, uv, tangent, bitangent);
+		for (int i = 0; i < 3; i++) {
+			glm::mat3 TBN { tangent, bitangent, object.computedNormals.at(face[i][VERTEX]) };
+			object.computedTBNs.at(face[i][VERTEX]) += TBN;
+		}
+	}
+	for (auto& tbn : object.computedTBNs) {
+		for (int i = 0; i < 2; i++) {
+			tbn[i] = glm::normalize(tbn[i]);
+		}
+	}
 }
 
 void Model::loadObject(char line[], int lineSize, FILE* objFile) {
@@ -75,6 +115,7 @@ void Model::loadObject(char line[], int lineSize, FILE* objFile) {
 	printf("Vertices: %d | Faces: %d | ", object.vertices.size(), object.faces.size());
 	printf("Texture vertices: %d | Vertex normals: %d\n", object.textureUVs.size(), object.normals.size());
 	calculateNormals(object);
+	if (object.material->texture->tangentMap.get() && !object.textureUVs.empty()) { calculateTBNs(object); }
 	vertexIndex += object.vertices.size();
 	textureUVIndex += object.textureUVs.size();
 	normalIndex += object.normals.size();
