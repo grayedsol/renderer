@@ -23,7 +23,7 @@ struct GouraudShader : public FragmentShader {
 
 	GouraudShader(const vec3 lightDirection, const MatTexture& texture) : lightDirection(lightDirection), texture(texture) {}
 	TGAColor operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv) const final override;
-	TGAColor operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv, mat3 tbn) const;
+	TGAColor operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv, mat3 tbns[3]) const;
 };
 
 struct GouraudShaderWhite : public FragmentShader {
@@ -34,7 +34,7 @@ struct GouraudShaderWhite : public FragmentShader {
 	TGAColor operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv) const final override {
 		return (*this)(baryCoords, norms);
 	}
-	TGAColor operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv, mat3 tbn) const {
+	TGAColor operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv, mat3 tbns[3]) const {
 		return (*this)(baryCoords, norms);
 	}
 };

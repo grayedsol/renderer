@@ -2,6 +2,7 @@
 #include "glm/ext/matrix_float4x4.hpp"
 
 struct VertexShader {
+	using mat3 = glm::mat3;
 	using mat4 = glm::mat4;
 	using vec3 = glm::vec3;
 	using vec4 = glm::vec4;
@@ -16,6 +17,14 @@ struct VertexShader {
 	}
 
 	vec3 transformNormal(vec3 normal) const {
-		return modelViewMatrix * vec4(normal, 0.f);
+		return glm::normalize(modelViewMatrix * vec4(normal, 0.f));
+	}
+
+	mat3 transformTBN(mat3 tbn) const {
+		return mat3 {
+			glm::normalize(modelViewMatrix * vec4(tbn[0], 0.f)),
+			glm::normalize(modelViewMatrix * vec4(tbn[1], 0.f)),
+			glm::normalize(modelViewMatrix * vec4(tbn[2], 0.f))
+		};
 	}
 };
