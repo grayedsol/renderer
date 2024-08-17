@@ -6,3 +6,6 @@
 
 # Other objects folder
 otherObj/
+
+# Cache
+.[Cc]ache/
