@@ -10,4 +10,4 @@ extern const TGAColor Blue;
 
 void drawModelWire(const Model* model, OutImage& image);
 
-void renderScene(const Scene& scene, const Camera& camera, OutImage& image);
+void renderScene(Scene& scene, const Camera& camera, OutImage& image);

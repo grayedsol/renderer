@@ -11,9 +11,9 @@ struct VertexShader {
 	mat4 projectionMatrix;
 	mat4 viewportMatrix;
 
-	vec3 operator()(vec3 vertex) const {
+	vec4 operator()(vec3 vertex) const {
 		vec4 vClip = projectionMatrix * modelViewMatrix * vec4{ vertex, 1.f };
-		return viewportMatrix * (vClip / vClip.w);
+		return vec4(vec3(viewportMatrix * (vClip / vClip.w)), 1 / vClip.w);
 	}
 
 	vec3 transformNormal(vec3 normal) const {

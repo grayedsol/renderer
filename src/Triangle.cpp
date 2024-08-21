@@ -40,6 +40,16 @@ glm::imat2x2 Triangle::boundingBox(int screenWidth, int screenHeight, const mat3
 	};
 }
 
+glm::imat2x2 Triangle::boundingBox(int screenWidth, int screenHeight, const mat3x4 tri) {
+	using std::min, std::max;
+	return {
+		{ max(0, min(screenWidth - 1, (int)min(tri[0].x, min(tri[1].x, tri[2].x)))),
+		  max(0, min(screenHeight - 1, (int)min(tri[0].y, min(tri[1].y, tri[2].y)))) },
+		{ max(0, min(screenWidth - 1, (int)max(tri[0].x, max(tri[1].x, tri[2].x)))),
+		  max(0, min(screenWidth - 1, (int)max(tri[0].y, max(tri[1].y, tri[2].y)))) }
+	};
+}
+
 glm::vec3 Triangle::barycentric(const mat3x2 tri, const vec2 point) {
 	return vec3{
 		edge(tri[1], tri[2], point),
@@ -54,6 +64,18 @@ glm::vec3 Triangle::barycentric(const mat3 tri, const vec3 point) {
 		edge(tri[2], tri[0], point),
 		edge(tri[0], tri[1], point)
 	};
+}
+
+glm::vec3 Triangle::barycentric(const mat3x4 tri, const vec3 point) {
+	return vec3{
+		edge(tri[1], tri[2], point),
+		edge(tri[2], tri[0], point),
+		edge(tri[0], tri[1], point)
+	};
+}
+
+glm::vec3 Triangle::perspectiveBarycentric(const mat3x4 tri, const vec4 fragCoord, const vec3 bary) {
+	return (1.f / fragCoord.w) * (bary * vec3{ tri[0].w, tri[1].w, tri[2].w });
 }
 
 void Triangle::draw(const imat3x2 tri, OutImage& image, const TGAColor& color) {

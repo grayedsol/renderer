@@ -9,10 +9,12 @@ namespace Triangle {
 	using ivec2 = glm::ivec2;
 	using vec2 = glm::vec2;
 	using vec3 = glm::vec3;
+	using vec4 = glm::vec4;
 	using mat3 = glm::mat3;
 	using imat2x2 = glm::imat2x2;
 	using imat3x2 = glm::imat3x2;
 	using mat3x2 = glm::mat3x2;
+	using mat3x4 = glm::mat3x4;
 
 	inline float edge(const glm::vec2 a, const glm::vec2 b, const glm::vec2 c) {
 		return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
@@ -30,6 +32,10 @@ namespace Triangle {
 		return (m[1].x - m[0].x) * (m[2].y - m[0].y) - (m[1].y - m[0].y) * (m[2].x - m[0].x);
 	}
 
+	inline float edge(const glm::mat3x4 m) {
+		return (m[1].x - m[0].x) * (m[2].y - m[0].y) - (m[1].y - m[0].y) * (m[2].x - m[0].x);
+	}
+
 	imat2x2 boundingBox(const mat3x2 tri);
 
 	imat2x2 boundingBox(int screenWidth, int screenHeight, const mat3x2 tri);
@@ -38,9 +44,15 @@ namespace Triangle {
 
 	imat2x2 boundingBox(int screenWidth, int screenHeight, const mat3 tri);
 
+	imat2x2 boundingBox(int screenWidth, int screenHeight, const mat3x4 tri);
+
 	vec3 barycentric(const mat3x2 tri, const vec2 point);
 
 	vec3 barycentric(const mat3 tri, const vec3 point);
+
+	vec3 barycentric(const mat3x4 tri, const vec3 point);
+	
+	vec3 perspectiveBarycentric(const mat3x4 tri, const vec4 fragCoord, const vec3 bary);
 
 	void draw(const imat3x2 tri, OutImage& image, const TGAColor& color);
 
