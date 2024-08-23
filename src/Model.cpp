@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static void getTBN(const glm::mat3 tri, const glm::mat3 uv, glm::vec3& outTangent, glm::vec3 outBitangent) {
+static void getTBN(const glm::mat3 tri, const glm::mat3 uv, glm::vec3& outTangent, glm::vec3& outBitangent) {
 	glm::vec3 edge1 = tri[1] - tri[0];
 	glm::vec3 edge2 = tri[2] - tri[0];
 	glm::mat3x2 edge = { { edge1.x, edge2.x }, { edge1.y, edge2.y }, { edge1.z, edge2.z } };
