@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static void getTBN(const glm::mat3 tri, const glm::mat3 uv, glm::vec3& outTangent, glm::vec3 outBitangent) {
+static void getTBN(const glm::mat3 tri, const glm::mat3 uv, glm::vec3& outTangent, glm::vec3& outBitangent) {
 	glm::vec3 edge1 = tri[1] - tri[0];
 	glm::vec3 edge2 = tri[2] - tri[0];
 	glm::mat3x2 edge = { { edge1.x, edge2.x }, { edge1.y, edge2.y }, { edge1.z, edge2.z } };
@@ -115,7 +115,7 @@ void Model::loadObject(char line[], int lineSize, FILE* objFile) {
 	printf("Vertices: %d | Faces: %d | ", object.vertices.size(), object.faces.size());
 	printf("Texture vertices: %d | Vertex normals: %d\n", object.textureUVs.size(), object.normals.size());
 	calculateNormals(object);
-	if (object.material->texture->tangentMap.get() && !object.textureUVs.empty()) { calculateTBNs(object); }
+	if (object.material->tangentMap && !object.textureUVs.empty()) { calculateTBNs(object); }
 	vertexIndex += object.vertices.size();
 	textureUVIndex += object.textureUVs.size();
 	normalIndex += object.normals.size();
@@ -127,24 +127,30 @@ void Model::loadMaterial(char line[], int lineSize, FILE* materialFile) {
 	char materialName[512];
 	int scanResult = sscanf(line, "newmtl %s", materialName);
 	Material material(materialName);
-
-	char texturePath[512] = {0};
-	char tangentMapPath[512] = {0};
+	
 	while (fgets(line, lineSize, materialFile)) {
 		if (line[0] == '#') { continue; }
 		else if (!strncmp(line, "map_Kd", 6)) {
+			char texturePath[512] = {0};
 			scanResult = sscanf(line, "map_Kd %s", texturePath);
+			material.texture = getTexture(texturePath);
 		}
 		else if (!strncmp(line, "norm", 4)) {
+			char tangentMapPath[512] = {0};
 			scanResult = sscanf(line, "norm %s", tangentMapPath);
+			material.tangentMap = getTexture(tangentMapPath);
+		}
+		else if (!strncmp(line, "Ks ", 3)) {
+			float r;
+			float g;
+			float b;
+			scanResult = sscanf(line, "Ks %f %f %f", &r, &g, &b);
+			material.specularColor = TGAColor{ (unsigned char)(r * 255.f), (unsigned char)(g * 255.f), (unsigned char)(b * 255.f), 255 };
+		}
+		else if (!strncmp(line, "Ns ", 3)) {
+			scanResult = sscanf(line, "Ns %f", &material.shine);
 		}
 		else if (!strncmp(line, "newmtl", 6)) { break; }
-	}
-	if (texturePath[0] && tangentMapPath[0]) {
-		material.texture = getTexture(texturePath, tangentMapPath);
-	}
-	else if (texturePath[0]) {
-		material.texture = getTexture(texturePath);
 	}
 	materials.push_back(std::move(material));
 	if (!strncmp(line, "newmtl", 6)) { loadMaterial(line, lineSize, materialFile); }
@@ -187,22 +193,10 @@ Model::Model(const char* filename) {
 MatTexture* Model::getTexture(const char* path) {
 	/* Search for existing texture first */
 	for (auto& texture : textures) {
-		if (!strcmp(texture->path, path) && !texture->tangentMapPath) { return texture.get(); }
+		if (!strcmp(texture->path, path)) { return texture.get(); }
 	}
 	/* Load new texture if there wasn't a match */
 	textures.push_back(std::make_unique<MatTexture>(path));
-	return textures.back().get();
-}
-
-MatTexture *Model::getTexture(const char *path, const char *tangentMapPath) {
-	/* Search for existing texture first */
-	for (auto& texture : textures) {
-		if (!strcmp(texture->path, path) && !strcmp(texture->tangentMapPath, tangentMapPath)) {
-			return texture.get(); 
-		}
-	}
-	/* Load new texture if there wasn't a match */
-	textures.push_back(std::make_unique<MatTexture>(path, tangentMapPath));
 	return textures.back().get();
 }
 
