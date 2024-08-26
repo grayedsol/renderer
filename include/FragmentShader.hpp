@@ -37,6 +37,11 @@ struct RGBShader : public FragmentShader {
 };
 
 struct PhongShader : public FragmentShader {
+	enum {
+		AMBIENT = 0,
+		DIFFUSE = 1,
+		SPECULAR = 2
+	};
 	const Material& material;
 
 	PhongShader(const Scene* scene, const Material& material) : FragmentShader(scene), material(material) {}
