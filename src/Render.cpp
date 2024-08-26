@@ -58,7 +58,7 @@ void renderScene(Scene& scene, const Camera& camera, OutImage& image) {
 
 	const glm::vec4 lightPos = camera.viewMatrix * glm::vec4{ 0.f, 2.f, -5.f, 0.f };
 	const glm::vec4 lightDirection = camera.viewMatrix * scene.lightDirection;
-	scene.addLight(Light{lightPos, .75f});
+	scene.addLight(Light{lightPos});
 	scene.viewer = glm::transpose(camera.viewMatrix)[3];
 
 	for (auto& model : scene.models) {
