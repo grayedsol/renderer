@@ -13,11 +13,11 @@ struct MatTexture {
 
 		texture = std::make_unique<TGAImage>();
 
-		assert(texture.get()->read_tga_file(path) && "Error reading .tga file.");
+		bool textureRead = texture.get()->read_tga_file(path);
+
+		assert(textureRead && "Error reading .tga file.");
 	}
-	~MatTexture() {
-		delete[] path;
-	}
+	~MatTexture() { delete[] path; }
 	MatTexture(const MatTexture&) = delete;
 	MatTexture& operator=(const MatTexture&) = delete;
 
