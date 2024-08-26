@@ -6,43 +6,44 @@
 
 class Scene;
 
+struct FragmentShaderData {
+	using vec3 = glm::vec3;
+	using mat3 = glm::mat3;
+
+	vec3 fragCoord;
+	vec3 baryCoord;
+	mat3 uv;
+	mat3 tbns[3];
+
+	void copyTBNs(const mat3 tbns[3]) {
+		assert(this->tbns != tbns);
+		memcpy(this->tbns, tbns, sizeof(mat3) * 3);
+	}
+
+	mat3 getNorms() const { return mat3{ tbns[0][2], tbns[1][2], tbns[2][2]}; }
+};
+
 struct FragmentShader {
 	using vec3 = glm::vec3;
 	using mat3 = glm::mat3;
 	const Scene* scene;
 	FragmentShader(const Scene* scene) : scene(scene) {}
-	virtual TGAColor operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv) const = 0;
+	virtual TGAColor operator()(const FragmentShaderData& data) const = 0;
 };
 
 struct RGBShader : public FragmentShader {
 	RGBShader(const Scene* scene) : FragmentShader(scene) {}
-	TGAColor operator()(const vec3 baryCoords) const;
-	TGAColor operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv) const final override {
-		return (*this)(baryCoords);
-	}
+	TGAColor operator()(const FragmentShaderData& data) const final override;
 };
 
-struct GouraudShader : public FragmentShader {
-	const MatTexture& texture;
-	vec3 lightDirection = vec3{ 0, 0, 1 };
+struct PhongShader : public FragmentShader {
+	const Material& material;
 
-	GouraudShader(const Scene* scene, const MatTexture& texture) : FragmentShader(scene), texture(texture) {}
-	TGAColor operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv) const final override;
-	TGAColor operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv, mat3 tbns[3]) const;
-	TGAColor operator()(const vec3 fragCoord, const vec3 baryCoords, const mat3 norms, const mat3 uv, mat3 tbns[3]) const;
+	PhongShader(const Scene* scene, const Material& material) : FragmentShader(scene), material(material) {}
+	TGAColor operator()(const FragmentShaderData& data) const final override;
 };
 
-struct GouraudShaderWhite : public FragmentShader {
-	vec3 lightDirection = vec3{ 0, 0, 1 };
-	GouraudShaderWhite(const Scene* scene) : FragmentShader(scene) {}
-	TGAColor operator()(const vec3 baryCoords, const mat3 norms) const;
-	TGAColor operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv) const final override {
-		return (*this)(baryCoords, norms);
-	}
-	TGAColor operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv, mat3 tbns[3]) const {
-		return (*this)(baryCoords, norms);
-	}
-	TGAColor operator()(const vec3 fragCoord, const vec3 baryCoords, const mat3 norms, const mat3 uv, mat3 tbns[3]) const {
-		return (*this)(baryCoords, norms);
-	}
+struct PhongShaderWhite : public FragmentShader {
+	PhongShaderWhite(const Scene* scene) : FragmentShader(scene) {}
+	TGAColor operator()(const FragmentShaderData& data) const final override;
 };

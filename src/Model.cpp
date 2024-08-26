@@ -51,7 +51,7 @@ void Model::calculateTBNs(ModelObject& object) {
 		}
 	}
 	for (auto& tbn : object.computedTBNs) {
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 3; i++) {
 			tbn[i] = glm::normalize(tbn[i]);
 		}
 	}

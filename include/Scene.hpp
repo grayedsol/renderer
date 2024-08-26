@@ -6,6 +6,7 @@ struct Scene {
 	std::vector<Model> models;
 	std::vector<Light> lights;
 	const glm::vec4 lightDirection;
+	glm::vec3 viewer;
 
 	Scene(glm::vec4 lightDirection = glm::vec4{ 0, 0, 1, 0 }) : lightDirection(lightDirection) {}
 	~Scene() {}

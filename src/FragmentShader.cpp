@@ -1,56 +1,49 @@
 #include "FragmentShader.hpp"
 #include "Scene.hpp"
 
-TGAColor RGBShader::operator()(const vec3 baryCoords) const {
+TGAColor RGBShader::operator()(const FragmentShaderData& data) const {
 	return TGAColor{
-		(unsigned char)(baryCoords.r * 255),
-		(unsigned char)(baryCoords.g * 255),
-		(unsigned char)(baryCoords.b * 255),
+		(unsigned char)(data.baryCoord.r * 255),
+		(unsigned char)(data.baryCoord.g * 255),
+		(unsigned char)(data.baryCoord.b * 255),
 		255
 	};
 }
 
-TGAColor GouraudShader::operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv) const {
-	float intensity = std::max(0.f, -glm::dot(norms * baryCoords, lightDirection));
-	const int texWidth = texture.texture.get()->get_width();
-	const int texHeight = texture.texture.get()->get_height();
-	const vec3 texPoint = uv * baryCoords;
-	return texture.texture.get()->get(int(texWidth * texPoint.x), texHeight - int(texHeight * texPoint.y)) * intensity;
-}
+TGAColor PhongShader::operator()(const FragmentShaderData& data) const {
+	const vec3 texPoint = data.uv * data.baryCoord;
+	const int uvX = material.texture->get()->get_width() * texPoint.x;
+	const int uvY = material.texture->get()->get_width() * (1.f - texPoint.y);
 
-TGAColor GouraudShader::operator()(const vec3 baryCoords, const mat3 norms, const mat3 uv, mat3 tbns[3]) const {
-	const int texWidth = texture.texture.get()->get_width();
-	const int texHeight = texture.texture.get()->get_height();
-	const vec3 texPoint = uv * baryCoords;
+	TGAColor diffuseColor = material.texture->get()->get(uvX, uvY);
+	TGAColor tangentData = material.tangentMap->get()->get(uvX, uvY);
+
 	mat3 TBN(0.f);
-	for (int i = 0; i < 3; i++) { TBN += tbns[i] * baryCoords[i]; }
-	TGAColor normPoint = texture.tangentMap.get()->get(int(texWidth * texPoint.x), texHeight - int(texHeight * texPoint.y));
-	vec3 norm = vec3{ normPoint.r, normPoint.g, normPoint.b } / 255.f;
-	norm = glm::normalize(norm * 2.f - 1.f);
-	float intensity = std::max(0.f, -glm::dot(TBN * norm, lightDirection));
+	for (int i = 0; i < 3; i++) { TBN += data.tbns[i] * data.baryCoord[i]; }
 
-	return texture.texture.get()->get(int(texWidth * texPoint.x), texHeight - int(texHeight * texPoint.y)) * intensity;
-}
+	vec3 N = vec3{ tangentData.r, tangentData.g, tangentData.b } / 255.f;
+	N = glm::normalize(TBN * (N * 2.f - 1.f));
+	vec3 V = glm::normalize(scene->viewer - data.fragCoord);
 
-TGAColor GouraudShader::operator()(const vec3 fragCoord, const vec3 baryCoords, const mat3 norms, const mat3 uv, mat3 tbns[3]) const {
-	const int texWidth = texture.texture.get()->get_width();
-	const int texHeight = texture.texture.get()->get_height();
-	const vec3 texPoint = uv * baryCoords;
-	mat3 TBN(0.f);
-	for (int i = 0; i < 3; i++) { TBN += tbns[i] * baryCoords[i]; }
-	TGAColor normPoint = texture.tangentMap.get()->get(int(texWidth * texPoint.x), texHeight - int(texHeight * texPoint.y));
-	vec3 norm = vec3{ normPoint.r, normPoint.g, normPoint.b } / 255.f;
-	norm = TBN * glm::normalize(norm * 2.f - 1.f);
-	float intensity = 0.f;
+	float diffuse = 0.f;
+	float specular = 0.f;
 	for (auto& light : scene->lights) {
-		glm::vec3 lightDir = glm::normalize(fragCoord - light.pos);
-		intensity += std::max(0.f, -glm::dot(norm, lightDir)) * light.intensity;
+		vec3 L = glm::normalize(light.pos - data.fragCoord);
+		vec3 R = N * (2 * std::max(0.f, glm::dot(L, N))) - L;
+		diffuse += std::max(0.f, glm::dot(N, L)) * light.intensity;
+		specular += powf(std::max(0.0f, glm::dot(R, V)), material.shine) * light.intensity;
 	}
 
-	return texture.texture.get()->get(int(texWidth * texPoint.x), texHeight - int(texHeight * texPoint.y)) * intensity;
+	return (diffuseColor * diffuse) + (material.specularColor * specular);
 }
 
-TGAColor GouraudShaderWhite::operator()(const vec3 baryCoords, const mat3 norms) const {
-	float intensity = std::max(0.f, -glm::dot(norms * baryCoords, lightDirection));
-	return TGAColor{ 255, 255, 255, 255 } * intensity;
+TGAColor PhongShaderWhite::operator()(const FragmentShaderData& data) const {
+	vec3 N = data.getNorms() * data.baryCoord;
+
+	float diffuse = 0.f;
+	for (auto& light : scene->lights) {
+		vec3 L = glm::normalize(light.pos - data.fragCoord);
+		diffuse += std::max(0.f, glm::dot(N, L)) * light.intensity;
+	}
+	return TGAColor{ 255, 255, 255, 255 } * diffuse;
 }

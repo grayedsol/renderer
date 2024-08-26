@@ -16,11 +16,11 @@ struct VertexShader {
 		return vec4(vec3(viewportMatrix * (vClip / vClip.w)), 1 / vClip.w);
 	}
 
-	vec3 transformNormal(vec3 normal) const {
+	vec3 normalToViewSpace(vec3 normal) const {
 		return glm::normalize(modelViewMatrix * vec4(normal, 0.f));
 	}
 
-	mat3 transformTBN(mat3 tbn) const {
+	mat3 TBNToViewSpace(mat3 tbn) const {
 		return mat3 {
 			glm::normalize(modelViewMatrix * vec4(tbn[0], 0.f)),
 			glm::normalize(modelViewMatrix * vec4(tbn[1], 0.f)),
