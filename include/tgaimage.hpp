@@ -61,9 +61,17 @@ struct TGAColor {
 	}
 
 	TGAColor operator*(float scalar) const {
-		TGAColor retColor;
+		TGAColor retColor(*this);
 		for (int i = 0; i < bytespp; i++) {
-			retColor.raw[i] = (unsigned char)(scalar * raw[i]);
+			retColor.raw[i] = (unsigned char)std::min(255.f, retColor.raw[i] * scalar);
+		}
+		return retColor;
+	}
+
+	TGAColor operator+(TGAColor rhs) const {
+		TGAColor retColor(*this);
+		for (int i = 0; i < bytespp; i++) {
+			retColor.raw[i] = (unsigned char)std::min(255, (int)retColor.raw[i] + rhs.raw[i]);
 		}
 		return retColor;
 	}

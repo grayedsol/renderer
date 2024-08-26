@@ -34,7 +34,6 @@ public:
 	const std::vector<ModelObject>& getModelObjects() const { return objects; }
 
 	MatTexture* getTexture(const char* path);
-	MatTexture* getTexture(const char* path, const char* tangentMapPath);
 	Material* getMaterial(const char* materialName);
 
 	glm::mat4 getModelMatrix() const { return modelMatrix; }

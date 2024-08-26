@@ -11,16 +11,16 @@ struct VertexShader {
 	mat4 projectionMatrix;
 	mat4 viewportMatrix;
 
-	vec3 operator()(vec3 vertex) const {
+	vec4 operator()(vec3 vertex) const {
 		vec4 vClip = projectionMatrix * modelViewMatrix * vec4{ vertex, 1.f };
-		return viewportMatrix * (vClip / vClip.w);
+		return vec4(vec3(viewportMatrix * (vClip / vClip.w)), 1 / vClip.w);
 	}
 
-	vec3 transformNormal(vec3 normal) const {
+	vec3 normalToViewSpace(vec3 normal) const {
 		return glm::normalize(modelViewMatrix * vec4(normal, 0.f));
 	}
 
-	mat3 transformTBN(mat3 tbn) const {
+	mat3 TBNToViewSpace(mat3 tbn) const {
 		return mat3 {
 			glm::normalize(modelViewMatrix * vec4(tbn[0], 0.f)),
 			glm::normalize(modelViewMatrix * vec4(tbn[1], 0.f)),

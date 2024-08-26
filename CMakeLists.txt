@@ -13,7 +13,7 @@ set(SOURCES src/main.cpp
     src/Model.cpp
     src/Render.cpp
     src/FragmentShader.cpp
-    )
+)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
@@ -23,7 +23,7 @@ file(COPY textures DESTINATION ${CMAKE_BINARY_DIR})
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE include
-    )
+)
 
 configure_file(rendererconfig.h.in rendererconfig.h)
 
