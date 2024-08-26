@@ -16,9 +16,7 @@ private:
 	};
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> textureUVs;
-	std::vector<glm::vec3> normals;
-	std::vector<glm::vec3> computedNormals;
-	std::vector<glm::mat3> computedTBNs;
+	std::vector<glm::mat3> tbns;
 	std::vector<std::vector<glm::ivec3>> faces;
 	
 	const Model* model;
@@ -40,9 +38,7 @@ public:
 		swap(lhs.material, rhs.material);
 		swap(lhs.vertices, rhs.vertices);
 		swap(lhs.textureUVs, rhs.textureUVs);
-		swap(lhs.normals, rhs.normals);
-		swap(lhs.computedNormals, rhs.computedNormals);
-		swap(lhs.computedTBNs, rhs.computedTBNs);
+		swap(lhs.tbns, rhs.tbns);
 		swap(lhs.faces, rhs.faces);
 		swap(lhs.model, rhs.model);
 	}
@@ -55,14 +51,11 @@ public:
 	glm::vec3 getTextureUV(unsigned int i) const { return textureUVs.at(i); }
 	glm::vec3 getTextureUV(glm::ivec3 vec) const { return textureUVs.at(vec[TEXTURE]); }
 
-	glm::vec3 getNormal(unsigned int i) const { return normals.at(i); }
-	glm::vec3 getNormal(glm::ivec3 vec) const { return normals.at(vec[NORMAL]); }
+	glm::vec3 getNormal(unsigned int i) const { return tbns.at(i)[2]; }
+	glm::vec3 getNormal(glm::ivec3 vec) const { return tbns.at(vec[NORMAL])[2]; }
 
-	glm::vec3 getComputedNormal(unsigned int i) const { return computedNormals.at(i); }
-	glm::vec3 getComputedNormal(glm::ivec3 vec) const { return computedNormals.at(vec[VERTEX]); }
-
-	glm::mat3 getTBN(unsigned int i) const { return computedTBNs.at(i); }
-	glm::mat3 getTBN(glm::ivec3 vec) const { return computedTBNs.at(vec[VERTEX]); }
+	glm::mat3 getTBN(unsigned int i) const { return tbns.at(i); }
+	glm::mat3 getTBN(glm::ivec3 vec) const { return tbns.at(vec[VERTEX]); }
 
 	std::vector<glm::ivec3> getFace(int i) const { return faces.at(i); }
 	const std::vector<std::vector<glm::ivec3>>& getFaces() const { return faces; }

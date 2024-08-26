@@ -19,7 +19,8 @@ static void getTBN(const glm::mat3 tri, const glm::mat3 uv, glm::vec3& outTangen
 }
 
 void Model::calculateNormals(ModelObject& object) {
-	object.computedNormals.resize(object.vertices.size(), glm::vec3{ 0.f, 0.f, 0.f });
+	object.tbns.clear();
+	object.tbns.resize(object.vertices.size(), glm::mat3(0.f));
 	for (auto& face : object.faces) {
 		glm::vec3 vtx[3];
 		for (int i = 0; i < 3; i++) {
@@ -27,14 +28,18 @@ void Model::calculateNormals(ModelObject& object) {
 		}
 		glm::vec3 surfaceNormal = glm::normalize(glm::cross(vtx[1] - vtx[0], vtx[2] - vtx[0]));
 		for (int i = 0; i < 3; i++) {
-			object.computedNormals.at(face[i][VERTEX]) += surfaceNormal;
+			object.tbns.at(face[i][VERTEX])[2] += surfaceNormal;
 		}
 	}
-	for (auto& normal : object.computedNormals) { normal = glm::normalize(normal); }
+	for (auto& tbn : object.tbns) { tbn[2] = glm::normalize(tbn[2]); }
 }
 
 void Model::calculateTBNs(ModelObject& object) {
-	object.computedTBNs.resize(object.vertices.size(), glm::mat3(0.f));
+	assert(object.tbns.size() == object.vertices.size() && 
+		"TBN vector size did not match vertex vector size." &&
+		"Probably used normals from obj file when they didn't exist, or there wasn't enough of them." &&
+		"Try using computeNormals as true in Model constructor."
+	);
 	for (auto& face : object.faces) {
 		glm::mat3 tri;
 		glm::mat3 uv;
@@ -46,18 +51,18 @@ void Model::calculateTBNs(ModelObject& object) {
 		glm::vec3 bitangent;
 		getTBN(tri, uv, tangent, bitangent);
 		for (int i = 0; i < 3; i++) {
-			glm::mat3 TBN { tangent, bitangent, object.computedNormals.at(face[i][VERTEX]) };
-			object.computedTBNs.at(face[i][VERTEX]) += TBN;
+			glm::mat3 TBN { tangent, bitangent, glm::vec3{0.f} };
+			object.tbns.at(face[i][VERTEX]) += TBN;
 		}
 	}
-	for (auto& tbn : object.computedTBNs) {
-		for (int i = 0; i < 3; i++) {
+	for (auto& tbn : object.tbns) {
+		for (int i = 0; i < 2; i++) {
 			tbn[i] = glm::normalize(tbn[i]);
 		}
 	}
 }
 
-void Model::loadObject(char line[], int lineSize, FILE* objFile) {
+void Model::loadObject(char line[], int lineSize, FILE* objFile, bool computeNormals) {
 	char objectName[512];
 	int scanResult = sscanf(line, "o %s", objectName);
 	ModelObject object(this, objectName);
@@ -81,7 +86,7 @@ void Model::loadObject(char line[], int lineSize, FILE* objFile) {
 		else if (!strncmp(line, "vn", 2)) {
 			glm::vec3 vn;
 			scanResult = sscanf(line, "vn %f %f %f", &vn[0], &vn[1], &vn[2]);
-			object.normals.push_back(vn);
+			object.tbns.push_back(glm::mat3(glm::vec3{0.f}, glm::vec3{0.f}, vn));
 		}
 		else if (!strncmp(line, "usemtl", 6)) {
 			char materialName[512];
@@ -113,14 +118,14 @@ void Model::loadObject(char line[], int lineSize, FILE* objFile) {
 	}
 	printf("Object \"%s\"\n", objectName);
 	printf("Vertices: %d | Faces: %d | ", object.vertices.size(), object.faces.size());
-	printf("Texture vertices: %d | Vertex normals: %d\n", object.textureUVs.size(), object.normals.size());
-	calculateNormals(object);
+	printf("Texture vertices: %d | Vertex normals: %d\n", object.textureUVs.size(), object.tbns.size());
+	if (computeNormals) { calculateNormals(object); }
 	if (object.material->tangentMap && !object.textureUVs.empty()) { calculateTBNs(object); }
 	vertexIndex += object.vertices.size();
 	textureUVIndex += object.textureUVs.size();
-	normalIndex += object.normals.size();
+	normalIndex += object.tbns.size();
 	objects.push_back(std::move(object));
-	if (!strncmp(line, "o ", 2)) { loadObject(line, lineSize, objFile); }
+	if (!strncmp(line, "o ", 2)) { loadObject(line, lineSize, objFile, computeNormals); }
 }
 
 void Model::loadMaterial(char line[], int lineSize, FILE* materialFile) {
@@ -170,7 +175,7 @@ void Model::loadMaterials(const char* materialPath) {
 	}
 }
 
-Model::Model(const char* filename) {
+Model::Model(const char* filename, bool computeNormals) {
 	FILE* objFile = fopen(filename, "rb");
 	assert(objFile && "Failure opening object file.");
 	printf("Model \"%s\":\n", filename);
@@ -185,7 +190,7 @@ Model::Model(const char* filename) {
 			loadMaterials(pathBuf);
 		}
 		else if (!strncmp(line, "o ", 2)) {
-			loadObject(line, lineSize, objFile);
+			loadObject(line, lineSize, objFile, computeNormals);
 		}
 	}
 }

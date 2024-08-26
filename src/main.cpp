@@ -8,7 +8,7 @@
 
 int main(int argc, char** argv) {
 	OutImage image(800, 800, TGAImage::RGB);
-	Model model(argc > 1 ? argv[1] : "obj/head.obj");
+	Model model(argc > 1 ? argv[1] : "obj/head.obj", true);
 
 	model.rotateX(glm::radians(0.f));
 	model.rotateY(glm::radians(180.f));
