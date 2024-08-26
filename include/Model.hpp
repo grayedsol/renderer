@@ -21,7 +21,7 @@ private:
 
 	glm::mat4 modelMatrix = glm::identity<glm::mat4>();
 
-	void loadObject(char line[], int lineSize, FILE* objFile);
+	void loadObject(char line[], int lineSize, FILE* objFile, bool computeNormals);
 	void calculateNormals(ModelObject& object);
 	void calculateTBNs(ModelObject& object);
 
@@ -29,7 +29,7 @@ private:
 	void loadMaterials(const char* materialPath);
 
 public:
-	Model(const char* filename);
+	Model(const char* filename, bool computeNormals);
 
 	const std::vector<ModelObject>& getModelObjects() const { return objects; }
 
