@@ -68,11 +68,11 @@ void renderScene(Scene& scene, const Camera& camera, OutImage& image) {
 			TGAImage* texture = object.material->texture->texture.get();
 
 			if (texture) {
-				PhongShader fragShader(&scene, *object.material);
+				PhongShader fragShader(scene, *object.material);
 				renderModelObject(object, image, vShader, fragShader);
 			}
 			else {
-				PhongShaderWhite fragShader(&scene);
+				PhongShaderWhite fragShader(scene);
 				renderModelObject(object, image, vShader, fragShader);
 			}
 		}

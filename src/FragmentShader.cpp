@@ -12,12 +12,12 @@ TGAColor RGBShader::operator()(const FragmentShaderData& data) const {
 
 TGAColor PhongShader::operator()(const FragmentShaderData& data) const {
 	const vec3 texPoint = data.uv * data.baryCoord;
-	const int uvX = material.texture->get()->get_width() * texPoint.x;
-	const int uvY = material.texture->get()->get_width() * (1.f - texPoint.y);
+	const int uvX = material->texture->get()->get_width() * texPoint.x;
+	const int uvY = material->texture->get()->get_width() * (1.f - texPoint.y);
 
-	TGAColor diffuseColor = material.texture->get()->get(uvX, uvY);
+	TGAColor diffuseColor = material->texture->get()->get(uvX, uvY);
 	TGAColor ambientColor = diffuseColor * 0.1f;
-	TGAColor tangentData = material.tangentMap->get()->get(uvX, uvY);
+	TGAColor tangentData = material->tangentMap->get()->get(uvX, uvY);
 
 	mat3 TBN(0.f);
 	for (int i = 0; i < 3; i++) { TBN += data.tbns[i] * data.baryCoord[i]; }
@@ -34,10 +34,10 @@ TGAColor PhongShader::operator()(const FragmentShaderData& data) const {
 		vec3 R = N * (2 * std::max(0.f, glm::dot(L, N))) - L;
 		phong[AMBIENT] += light.intensity;
 		phong[DIFFUSE] += std::max(0.f, glm::dot(N, L)) * light.intensity;
-		phong[SPECULAR] += powf(std::max(0.0f, glm::dot(R, V)), material.shine) * light.intensity;
+		phong[SPECULAR] += powf(std::max(0.0f, glm::dot(R, V)), material->shine) * light.intensity;
 	}
 	phong = glm::normalize(phong);
-	return (ambientColor * phong[AMBIENT]) + (diffuseColor * phong[DIFFUSE]) + (material.specularColor * phong[SPECULAR]);
+	return (ambientColor * phong[AMBIENT]) + (diffuseColor * phong[DIFFUSE]) + (material->specularColor * phong[SPECULAR]);
 }
 
 TGAColor PhongShaderWhite::operator()(const FragmentShaderData& data) const {

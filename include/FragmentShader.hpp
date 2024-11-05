@@ -27,12 +27,12 @@ struct FragmentShader {
 	using vec3 = glm::vec3;
 	using mat3 = glm::mat3;
 	const Scene* scene;
-	FragmentShader(const Scene* scene) : scene(scene) {}
+	FragmentShader(const Scene& scene) : scene(&scene) {}
 	virtual TGAColor operator()(const FragmentShaderData& data) const = 0;
 };
 
 struct RGBShader : public FragmentShader {
-	RGBShader(const Scene* scene) : FragmentShader(scene) {}
+	RGBShader(const Scene& scene) : FragmentShader(scene) {}
 	TGAColor operator()(const FragmentShaderData& data) const final override;
 };
 
@@ -42,13 +42,13 @@ struct PhongShader : public FragmentShader {
 		DIFFUSE = 1,
 		SPECULAR = 2
 	};
-	const Material& material;
+	const Material* material;
 
-	PhongShader(const Scene* scene, const Material& material) : FragmentShader(scene), material(material) {}
+	PhongShader(const Scene& scene, const Material& material) : FragmentShader(scene), material(&material) {}
 	TGAColor operator()(const FragmentShaderData& data) const final override;
 };
 
 struct PhongShaderWhite : public FragmentShader {
-	PhongShaderWhite(const Scene* scene) : FragmentShader(scene) {}
+	PhongShaderWhite(const Scene& scene) : FragmentShader(scene) {}
 	TGAColor operator()(const FragmentShaderData& data) const final override;
 };
